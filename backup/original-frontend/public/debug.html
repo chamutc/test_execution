@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Resource Scheduler</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>🔧 Debug Page</h1>
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="debug-section">
+                <h2>Button Tests</h2>
+                <div class="button-tests">
+                    <button class="btn btn-primary" id="addSessionBtn">+ Add Session</button>
+                    <button class="btn btn-secondary" id="downloadTemplateBtn">📄 Download Template</button>
+                    <button class="btn btn-info" id="viewImportHistoryBtn">📊 Import History</button>
+                    <button class="btn btn-secondary" id="exportSessionsBtn">📥 Export</button>
+                    <button class="btn btn-warning" id="clearAllSessionsBtn">🗑️ Clear All</button>
+                </div>
+
+                <h2>Debug Info</h2>
+                <div id="debugInfo">
+                    <p>Loading debug information...</p>
+                </div>
+
+                <h2>Console Output</h2>
+                <div id="consoleOutput" style="background: #f5f5f5; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; max-height: 300px; overflow-y: auto;">
+                    Console output will appear here...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Capture console output
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+
+        function addToConsole(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = `[${timestamp}] ${type.toUpperCase()}: ${args.join(' ')}\n`;
+            consoleOutput.textContent += message;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole('log', ...args);
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole('warn', ...args);
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole('error', ...args);
+        };
+
+        // Initialize debug page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Debug page loaded');
+            
+            // Initialize app
+            setTimeout(() => {
+                if (typeof App !== 'undefined') {
+                    window.app = new App();
+                    console.log('✅ App initialized');
+                    
+                    // Test button initialization
+                    setTimeout(() => {
+                        window.app.initializeButtonEventListeners();
+                        console.log('✅ Button listeners initialized');
+                        
+                        // Update debug info
+                        updateDebugInfo();
+                    }, 500);
+                } else {
+                    console.error('❌ App class not found');
+                }
+            }, 100);
+        });
+
+        function updateDebugInfo() {
+            const debugInfo = document.getElementById('debugInfo');
+            const info = [];
+            
+            // Check if buttons exist
+            const buttons = [
+                'addSessionBtn',
+                'downloadTemplateBtn', 
+                'viewImportHistoryBtn',
+                'exportSessionsBtn',
+                'clearAllSessionsBtn'
+            ];
+            
+            buttons.forEach(buttonId => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    info.push(`✅ ${buttonId}: Found`);
+                    info.push(`   - Visible: ${window.getComputedStyle(button).display !== 'none'}`);
+                    info.push(`   - Clickable: ${!button.disabled}`);
+                } else {
+                    info.push(`❌ ${buttonId}: Not found`);
+                }
+            });
+            
+            // Check app status
+            if (window.app) {
+                info.push(`✅ App instance: Available`);
+                info.push(`   - Socket: ${window.app.socket ? 'Connected' : 'Not connected'}`);
+                info.push(`   - Data: ${JSON.stringify(Object.keys(window.app.data))}`);
+            } else {
+                info.push(`❌ App instance: Not available`);
+            }
+            
+            // Check Socket.IO
+            if (typeof io !== 'undefined') {
+                info.push(`✅ Socket.IO: Available`);
+            } else {
+                info.push(`❌ Socket.IO: Not available`);
+            }
+            
+            debugInfo.innerHTML = '<pre>' + info.join('\n') + '</pre>';
+        }
+
+        // Test button clicks
+        function testButtonClick(buttonId) {
+            console.log(`🧪 Testing button: ${buttonId}`);
+            const button = document.getElementById(buttonId);
+            if (button) {
+                button.click();
+                console.log(`✅ Button ${buttonId} clicked`);
+            } else {
+                console.error(`❌ Button ${buttonId} not found`);
+            }
+        }
+
+        // Add test buttons
+        setTimeout(() => {
+            const debugSection = document.querySelector('.debug-section');
+            const testButtonsHtml = `
+                <h2>Manual Tests</h2>
+                <div class="test-buttons">
+                    <button onclick="testButtonClick('addSessionBtn')" class="btn btn-small">Test Add Session</button>
+                    <button onclick="testButtonClick('downloadTemplateBtn')" class="btn btn-small">Test Download</button>
+                    <button onclick="updateDebugInfo()" class="btn btn-small">Refresh Debug Info</button>
+                    <button onclick="window.app && window.app.initializeButtonEventListeners()" class="btn btn-small">Re-init Listeners</button>
+                </div>
+            `;
+            debugSection.insertAdjacentHTML('beforeend', testButtonsHtml);
+        }, 1000);
+    </script>
+</body>
+</html>

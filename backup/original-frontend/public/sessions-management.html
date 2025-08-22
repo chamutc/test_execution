@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sessions Management - Resource Scheduler</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/tabs.css">
+</head>
+<body>
+    <!-- Emergency Close Button -->
+    <button class="emergency-close-btn" id="emergencyCloseBtn" title="Close All Modals (ESC)">✕</button>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>🚀 Resource Scheduler</h1>
+                <nav class="main-navigation">
+                    <a href="sessions-management.html" class="nav-link active">📋 Sessions</a>
+                    <a href="index.html" class="nav-link">📅 Timeline</a>
+                    <a href="machine-management.html" class="nav-link">🖥️ Machine Management</a>
+                    <a href="hardware-management.html" class="nav-link">🔧 Hardware Management</a>
+                </nav>
+            </div>
+            <div class="status-bar">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Sessions Management Section -->
+            <section class="section visible-section" id="sessionsSection">
+                <div class="section-header">
+                    <h2>📋 Sessions Management</h2>
+                    <div class="section-controls">
+                        <button class="btn btn-primary" id="addSessionBtn">+ Add Session</button>
+                        <button class="btn btn-secondary" id="downloadTemplateBtn">📄 Download Template</button>
+                        <button class="btn btn-info" id="viewImportHistoryBtn">📊 Import History</button>
+                    </div>
+                </div>
+
+                <div class="csv-import-container">
+                    <div class="drag-drop-zone" id="dragDropZone">
+                        <div class="drag-drop-content">
+                            <div class="drag-drop-icon">📁</div>
+                            <div class="drag-drop-text">
+                                <h3>Drag & Drop CSV File Here</h3>
+                                <p>or <button class="btn-link" id="browseFilesBtn">browse files</button> to upload</p>
+                            </div>
+                            <div class="drag-drop-info">
+                                <small>Supported format: .csv files up to 10MB</small>
+                                <small>Required columns: Session, Platform, Debugger, OS, Priority, Num of normal test case, Num of combo test case, Status</small>
+                            </div>
+                        </div>
+                        <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+                    </div>
+
+                    <div class="import-progress" id="importProgress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Processing...</div>
+                    </div>
+
+                    <div class="import-results" id="importResults" style="display: none;">
+                        <div class="results-summary">
+                            <h4>Import Summary</h4>
+                            <div class="results-stats" id="resultsStats">
+                                <div class="stat">
+                                    <span class="stat-label">Total Sessions:</span>
+                                    <span class="stat-value" id="totalSessions">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Pending Sessions:</span>
+                                    <span class="stat-value" id="pendingSessions">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Hardware Required:</span>
+                                    <span class="stat-value" id="hardwareRequired">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="results-actions">
+                            <button class="btn btn-primary" id="viewImportedDataBtn">View Imported Data</button>
+                            <button class="btn btn-secondary" id="importAnotherBtn">Import Another File</button>
+                        </div>
+                    </div>
+
+                    <!-- Session Information Display -->
+                    <div class="sessions-display" id="sessionsDisplay">
+                        <div class="sessions-summary" id="sessionsSummary">
+                            <h4>Session Overview</h4>
+                            <div class="summary-stats" id="summaryStats">
+                                <div class="stat-card">
+                                    <span class="stat-number" id="totalSessionsCount">0</span>
+                                    <span class="stat-label">Total Sessions</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-number" id="pendingSessionsCount">0</span>
+                                    <span class="stat-label">Pending</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-number" id="scheduledSessionsCount">0</span>
+                                    <span class="stat-label">Scheduled</span>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-number" id="completedSessionsCount">0</span>
+                                    <span class="stat-label">Completed</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="sessions-table-container">
+                            <div class="table-controls">
+                                <div class="search-filter">
+                                    <input type="text" id="sessionSearch" placeholder="Search sessions..." class="search-input">
+                                    <select id="statusFilter" class="filter-select">
+                                        <option value="">All Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="scheduled">Scheduled</option>
+                                        <option value="running">Running</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="failed">Failed</option>
+                                    </select>
+                                </div>
+                                <div class="table-actions">
+                                    <button class="btn btn-secondary" id="exportSessionsBtn">📥 Export</button>
+                                    <button class="btn btn-warning" id="clearAllSessionsBtn">🗑️ Clear All</button>
+                                </div>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table class="sessions-table" id="sessionsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Session Name</th>
+                                            <th>Platform</th>
+                                            <th>Debugger</th>
+                                            <th>OS</th>
+                                            <th>Priority</th>
+                                            <th>Est. Time</th>
+                                            <th>Status</th>
+                                            <th>Hardware Required</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sessionsTableBody">
+                                        <!-- Sessions will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Notification System -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Initialize Sessions Management Page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔄 Initializing Sessions Management Page...');
+
+            // Wait for App class to be available
+            setTimeout(() => {
+                if (typeof App !== 'undefined') {
+                    window.app = new App();
+
+                    // Force show sessions section
+                    window.app.showSection('sessionsSection');
+
+                    // Load sessions data
+                    window.app.loadSessionsDisplay();
+
+                    // Initialize button event listeners specifically for sessions
+                    setTimeout(() => {
+                        window.app.initializeButtonEventListeners();
+                        console.log('✅ Button event listeners initialized');
+                    }, 500);
+
+                    console.log('✅ Sessions Management Page initialized');
+                } else {
+                    console.error('❌ App class not found');
+                }
+            }, 100);
+        });
+
+        // Handle navigation highlighting
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure the Sessions nav link is highlighted
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                if (link.href && link.href.includes('sessions-management.html')) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

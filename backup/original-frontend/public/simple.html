@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Scheduler - Simple Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .section-content {
+            padding: 25px;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+        
+        .status-indicator.connected {
+            background: #28a745;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>🚀 Resource Scheduler</h1>
+                <nav class="nav-links">
+                    <a href="#sessions" class="nav-link active">📋 Sessions</a>
+                    <a href="#timeline" class="nav-link">📅 Timeline</a>
+                    <a href="machine-management.html" class="nav-link">🖥️ Machine Management</a>
+                    <a href="hardware-management.html" class="nav-link">🔧 Hardware Management</a>
+                </nav>
+                <div class="status-bar">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="statusText">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Sessions Section -->
+            <section class="section" id="sessionsSection">
+                <div class="section-header">
+                    <h2>📋 Sessions Management</h2>
+                    <div>
+                        <button class="btn" onclick="loadSessions()">🔄 Load Sessions</button>
+                        <button class="btn btn-secondary" onclick="showTest()">🧪 Test Connection</button>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div id="sessionsContent">
+                        <div class="message info">
+                            Click "Load Sessions" to fetch session data from the server.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Timeline Section -->
+            <section class="section" id="timelineSection" style="display: none;">
+                <div class="section-header">
+                    <h2>📅 Timeline</h2>
+                    <div>
+                        <button class="btn" onclick="loadTimeline()">🔄 Load Timeline</button>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div id="timelineContent">
+                        <div class="message info">
+                            Timeline functionality will be loaded here.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = null;
+        
+        // Initialize simple app
+        function init() {
+            console.log('Simple app initializing...');
+            updateStatus('Initializing...', false);
+            
+            // Try to connect socket
+            connectSocket();
+            
+            // Setup navigation
+            setupNavigation();
+            
+            console.log('Simple app initialized');
+        }
+        
+        function connectSocket() {
+            try {
+                if (typeof io !== 'undefined') {
+                    socket = io();
+                    
+                    socket.on('connect', () => {
+                        updateStatus('Connected', true);
+                        console.log('Socket connected');
+                    });
+                    
+                    socket.on('disconnect', () => {
+                        updateStatus('Disconnected', false);
+                        console.log('Socket disconnected');
+                    });
+                    
+                    socket.on('connect_error', (error) => {
+                        updateStatus('Connection Error', false);
+                        console.error('Socket error:', error);
+                    });
+                } else {
+                    updateStatus('Socket.IO not available', false);
+                }
+            } catch (error) {
+                updateStatus('Socket Error', false);
+                console.error('Socket initialization error:', error);
+            }
+        }
+        
+        function updateStatus(text, connected) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            if (indicator && statusText) {
+                statusText.textContent = text;
+                if (connected) {
+                    indicator.classList.add('connected');
+                } else {
+                    indicator.classList.remove('connected');
+                }
+            }
+        }
+        
+        function setupNavigation() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (link.getAttribute('href').startsWith('#')) {
+                        e.preventDefault();
+                        const target = link.getAttribute('href').substring(1);
+                        showSection(target);
+                        
+                        // Update active state
+                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                });
+            });
+        }
+        
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+        }
+        
+        async function loadSessions() {
+            const content = document.getElementById('sessionsContent');
+            content.innerHTML = '<div class="message info">Loading sessions...</div>';
+            
+            try {
+                const response = await fetch('/api/csv/sessions');
+                if (response.ok) {
+                    const data = await response.json();
+                    const sessions = data.sessions || [];
+                    
+                    if (sessions.length > 0) {
+                        content.innerHTML = `
+                            <div class="message success">Loaded ${sessions.length} sessions successfully!</div>
+                            <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(sessions.slice(0, 3), null, 2)}</pre>
+                            ${sessions.length > 3 ? `<p>... and ${sessions.length - 3} more sessions</p>` : ''}
+                        `;
+                    } else {
+                        content.innerHTML = '<div class="message info">No sessions found. Try importing a CSV file first.</div>';
+                    }
+                } else {
+                    content.innerHTML = `<div class="message error">Failed to load sessions: ${response.status}</div>`;
+                }
+            } catch (error) {
+                content.innerHTML = `<div class="message error">Error loading sessions: ${error.message}</div>`;
+            }
+        }
+        
+        function loadTimeline() {
+            const content = document.getElementById('timelineContent');
+            content.innerHTML = '<div class="message info">Timeline functionality is being developed...</div>';
+        }
+        
+        function showTest() {
+            window.open('/test.html', '_blank');
+        }
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>

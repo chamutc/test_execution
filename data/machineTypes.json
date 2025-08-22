@@ -1,0 +1,16 @@
+[
+  {
+    "id": "266c2383-bb0b-47fd-9a6f-d4f2ac38f283",
+    "osType": "Ubuntu 24.04",
+    "quantity": 3,
+    "createdAt": "2025-08-20T09:03:48.627Z",
+    "updatedAt": "2025-08-20T15:10:29.470Z"
+  },
+  {
+    "id": "bdfc7321-32ff-4b14-836d-ddbc4fcf821f",
+    "osType": "Windows 11",
+    "quantity": 3,
+    "createdAt": "2025-08-20T09:03:59.574Z",
+    "updatedAt": "2025-08-20T15:10:34.940Z"
+  }
+]

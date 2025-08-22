@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jenkins Test Scheduler</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/timeline.css">
+    <link rel="stylesheet" href="css/tabs.css">
+</head>
+<body>
+    <!-- Emergency Close Button -->
+    <button class="emergency-close-btn" id="emergencyCloseBtn" title="Close All Modals (ESC)">✕</button>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>🚀 Resource Scheduler</h1>
+                <nav class="main-navigation">
+                    <a href="sessions-management.html" class="nav-link">📋 Sessions</a>
+                    <a href="index.html" class="nav-link active">📅 Timeline</a>
+                    <a href="machine-management.html" class="nav-link">🖥️ Machine Management</a>
+                    <a href="hardware-management.html" class="nav-link">🔧 Hardware Management</a>
+                </nav>
+            </div>
+            <div class="status-bar">
+                <div class="connection-status" id="connectionStatus">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Timeline Section -->
+            <section class="section visible-section" id="timelineSection">
+
+                <div class="timeline-container">
+                    <div class="timeline-controls">
+                        <div class="date-navigation">
+                            <div class="date-selector">
+                                <label for="currentDate">Date:</label>
+                                <input type="date" id="currentDate" class="date-input">
+                            </div>
+
+                            <div class="navigation-controls">
+                                <button class="btn btn-secondary" id="prevDayBtn">← Previous Day</button>
+                                <button class="btn btn-secondary" id="todayBtn">Today</button>
+                                <button class="btn btn-secondary" id="nextDayBtn">Next Day →</button>
+                            </div>
+
+                            <div class="timeline-info">
+                                <span id="timelineInfo">24-Hour Timeline View (1-hour slots)</span>
+                                <div class="multi-day-navigation" id="multiDayNavigation" style="display: none;">
+                                    <button class="btn btn-small" id="prevScheduleDayBtn">← Previous Schedule Day</button>
+                                    <span id="currentScheduleDay">Day 1</span>
+                                    <button class="btn btn-small" id="nextScheduleDayBtn">Next Schedule Day →</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="schedule-controls">
+                            <button class="btn btn-primary" id="autoScheduleBtn">🚀 Auto Schedule</button>
+                            <button class="btn btn-info" id="hardwareAnalysisBtn">📊 Hardware Analysis</button>
+                            <button class="btn btn-secondary" id="clearScheduleBtn">Clear Schedule</button>
+                            <button class="btn btn-secondary" id="refreshTimelineBtn">🔄 Refresh Data</button>
+                        </div>
+                    </div>
+
+                    <div class="timeline-grid-container">
+                        <div class="timeline-grid" id="timelineGrid">
+                            <!-- Timeline will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="hardwareModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="hardwareModalTitle">Add Hardware</h3>
+                <button class="modal-close" id="hardwareModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="hardwareForm">
+                    <div class="form-group">
+                        <label for="hardwareType">Type:</label>
+                        <select id="hardwareType" required>
+                            <option value="debugger">Debugger</option>
+                            <option value="platform">Platform</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hardwareName">Name:</label>
+                        <input type="text" id="hardwareName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hardwareQuantity">Quantity:</label>
+                        <input type="number" id="hardwareQuantity" min="1" value="1" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" id="hardwareCancelBtn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="machineTypeModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="machineTypeModalTitle">Add Machine Type</h3>
+                <button class="modal-close" id="machineTypeModalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="machineTypeForm">
+                    <div class="form-group">
+                        <label for="machineTypeName">OS Type:</label>
+                        <input type="text" id="machineTypeName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="machineTypeQuantity">Quantity:</label>
+                        <input type="number" id="machineTypeQuantity" min="1" value="1" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="button" class="btn btn-secondary" id="machineTypeCancelBtn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Node.js Setup Notice -->
+    <div id="setupNotice" class="setup-notice" style="display: none;">
+        <div class="setup-notice-content">
+            <h2>⚠️ Backend Setup Required</h2>
+            <p>You're viewing the frontend interface only. To use the full application with CSV processing, scheduling, and real-time updates, you need to set up the Node.js backend.</p>
+
+            <h3>🔧 Setup Instructions:</h3>
+            <ol>
+                <li><strong>Install Node.js:</strong> Download from <a href="https://nodejs.org" target="_blank">nodejs.org</a> (v14 or higher)</li>
+                <li><strong>Install dependencies:</strong> <code>npm install</code></li>
+                <li><strong>Start the server:</strong> <code>npm start</code></li>
+                <li><strong>Access the app:</strong> <code>http://localhost:3000</code></li>
+            </ol>
+
+            <h3>🐛 Troubleshooting ICU Library Issues (macOS):</h3>
+            <pre><code># If you see ICU library errors, try:
+brew install icu4c
+brew link icu4c --force
+
+# Or use Node Version Manager (nvm):
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+nvm install 18
+nvm use 18</code></pre>
+
+            <button onclick="document.getElementById('setupNotice').style.display='none'" class="btn btn-primary">Continue with Frontend Demo</button>
+        </div>
+    </div>
+
+    <!-- Enhanced Auto-Schedule Modal -->
+    <div class="modal-backdrop" id="autoScheduleModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>🚀 Enhanced Auto-Schedule</h3>
+                <button class="modal-close" id="closeAutoScheduleModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="schedule-options">
+                    <h4>Select Scheduling Option:</h4>
+
+                    <div class="option-card" id="fullScheduleOption">
+                        <div class="option-header">
+                            <input type="radio" name="scheduleType" value="full" id="fullScheduleRadio" checked>
+                            <label for="fullScheduleRadio">
+                                <strong>Option 1: Full Schedule</strong>
+                            </label>
+                        </div>
+                        <div class="option-description">
+                            Schedule all pending sessions based on available resources (hardware + machines).
+                            Automatically arrange resources optimally and create multi-day schedules if needed.
+                        </div>
+                    </div>
+
+                    <div class="option-card" id="timeLimitedOption">
+                        <div class="option-header">
+                            <input type="radio" name="scheduleType" value="limited" id="limitedScheduleRadio">
+                            <label for="limitedScheduleRadio">
+                                <strong>Option 2: Time-Limited Schedule</strong>
+                            </label>
+                        </div>
+                        <div class="option-description">
+                            Schedule sessions within a specific time window with expected execution hours.
+                            Display extended timeline with horizontal scrolling for multi-day spans.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="schedule-settings">
+                    <h4>Schedule Settings:</h4>
+
+                    <div class="settings-grid">
+                        <div class="setting-group">
+                            <label for="scheduleStartDate">Start Date:</label>
+                            <input type="date" id="scheduleStartDate" class="form-input">
+                        </div>
+
+                        <div class="setting-group">
+                            <label for="scheduleStartTime">Start Time:</label>
+                            <input type="time" id="scheduleStartTime" class="form-input" value="09:00">
+                        </div>
+
+                        <div class="setting-group" id="executionHoursGroup" style="display: none;">
+                            <label for="expectedExecutionHours">Expected Execution Hours:</label>
+                            <input type="number" id="expectedExecutionHours" class="form-input" min="1" max="168" value="8">
+                        </div>
+
+                        <div class="setting-group">
+                            <label for="optimizationMode">Optimization Mode:</label>
+                            <select id="optimizationMode" class="form-input">
+                                <option value="efficiency">Maximize Efficiency</option>
+                                <option value="speed">Minimize Total Time</option>
+                                <option value="balanced">Balanced Approach</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="advanced-settings">
+                        <h5>Advanced Options:</h5>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="allowOvertime" checked>
+                                Allow sessions to run ±1 hour over expected time for better optimization
+                            </label>
+                        </div>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="prioritizeHardware">
+                                Prioritize efficient hardware utilization over strict time constraints
+                            </label>
+                        </div>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="enableMultiDay" checked>
+                                Enable multi-day scheduling for full schedule option
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelAutoSchedule">Cancel</button>
+                <button type="button" class="btn btn-primary" id="startAutoSchedule">🚀 Start Scheduling</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Simple initialization test
+        console.log('Script loaded, DOM state:', document.readyState);
+
+        // Initialize app when DOM is ready
+        function initializeApp() {
+            console.log('Attempting to initialize app...');
+            try {
+                // Check if class is available
+                if (typeof JenkinsTestScheduler === 'undefined') {
+                    console.error('JenkinsTestScheduler class not found');
+                    return;
+                }
+
+                // Initialize the main application
+                window.app = new JenkinsTestScheduler();
+                console.log('Application initialized successfully');
+            } catch (error) {
+                console.error('Application initialization failed:', error);
+                console.error('Error stack:', error.stack);
+
+                // Show a user-friendly error message
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(255,255,255,0.95); z-index: 999999;
+                    display: flex; justify-content: center; align-items: center; flex-direction: column;
+                `;
+                errorDiv.innerHTML = `
+                    <h2>Application Error</h2>
+                    <p>Failed to initialize the application. Check console for details.</p>
+                    <button onclick="location.reload()">Refresh Page</button>
+                `;
+                document.body.appendChild(errorDiv);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+    <script src="js/app.js"></script>
+    <script src="js/csvHandler.js"></script>
+    <script src="js/hardwareManager.js"></script>
+    <script src="js/machineManager.js"></script>
+    <script src="js/timelineManager.js"></script>
+    <script src="js/socketHandler.js"></script>
+</body>
+</html>

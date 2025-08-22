@@ -1,0 +1,993 @@
+[
+  {
+    "id": "id-5l3zgeh7h-mempo1os",
+    "name": "API Integration Test",
+    "platform": "Platform_A",
+    "debugger": "S32_DBG",
+    "os": "Ubuntu 24.04",
+    "priority": "high",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 5,
+      "notRun": 10,
+      "total": 15
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 1,
+      "notRun": 1,
+      "total": 2
+    },
+    "estimatedTime": 5.25,
+    "requiresHardware": true,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.020Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "10:00"
+      },
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "11:00"
+      },
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "12:00"
+      },
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "13:00"
+      },
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "14:00"
+      },
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "15:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.980Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "10:00"
+        },
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "11:00"
+        },
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "12:00"
+        },
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "13:00"
+        },
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "14:00"
+        },
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "15:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-do8yx22bc-mempo1ot",
+    "name": "UI Automation Suite",
+    "platform": "Platform_B",
+    "debugger": "Segger",
+    "os": "Windows 11",
+    "priority": "normal",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 8,
+      "notRun": 15,
+      "total": 23
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 1,
+      "total": 1
+    },
+    "estimatedTime": 3.91,
+    "requiresHardware": true,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "10:00"
+      },
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "11:00"
+      },
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "12:00"
+      },
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "13:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.987Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "10:00"
+        },
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "11:00"
+        },
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "12:00"
+        },
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "13:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-u2ca3m4y9-mempo1ot",
+    "name": "Performance Benchmark",
+    "platform": "Platform_C",
+    "debugger": "PNE",
+    "os": "Ubuntu 24.04",
+    "priority": "urgent",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 3,
+      "notRun": 5,
+      "total": 8
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 2,
+      "notRun": 3,
+      "total": 5
+    },
+    "estimatedTime": 10.66,
+    "requiresHardware": true,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "10:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "11:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "12:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "13:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "14:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "15:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "16:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "17:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "6:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "7:00"
+      },
+      {
+        "dateKey": "2025-08-23",
+        "slotKey": "8:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.979Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "10:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "11:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "12:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "13:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "14:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "15:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "16:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "17:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "6:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "7:00"
+        },
+        {
+          "dateKey": "2025-08-23",
+          "slotKey": "8:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-1mi5fzw6g-mempo1ot",
+    "name": "Cross-Platform Test",
+    "platform": "Platform_B",
+    "debugger": null,
+    "os": "Ubuntu 24.04",
+    "priority": "normal",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 6,
+      "notRun": 12,
+      "total": 18
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 0,
+      "total": 0
+    },
+    "estimatedTime": 1.5,
+    "requiresHardware": false,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "16:00"
+      },
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "17:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.985Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "16:00"
+        },
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "17:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-bht5sg9zr-mempo1ot",
+    "name": "Memory Leak Detection",
+    "platform": "Platform_C",
+    "debugger": "PNE",
+    "os": "Windows 11",
+    "priority": "urgent",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 2,
+      "notRun": 6,
+      "total": 8
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 1,
+      "notRun": 4,
+      "total": 5
+    },
+    "estimatedTime": 10.66,
+    "requiresHardware": true,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "10:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "11:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "12:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "13:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "14:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "15:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "16:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "17:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "6:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "7:00"
+      },
+      {
+        "dateKey": "2025-08-24",
+        "slotKey": "8:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.980Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "10:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "11:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "12:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "13:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "14:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "15:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "16:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "17:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "6:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "7:00"
+        },
+        {
+          "dateKey": "2025-08-24",
+          "slotKey": "8:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-y7ql76rx0-mempo1ot",
+    "name": "Regression Test Suite",
+    "platform": null,
+    "debugger": "S32_DBG",
+    "os": "Ubuntu 24.04",
+    "priority": "normal",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 0,
+      "total": 0
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 1,
+      "total": 1
+    },
+    "estimatedTime": 2,
+    "requiresHardware": false,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "6:00"
+      },
+      {
+        "dateKey": "2025-08-25",
+        "slotKey": "7:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.985Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "6:00"
+        },
+        {
+          "dateKey": "2025-08-25",
+          "slotKey": "7:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-duhoepz9f-mempo1ot",
+    "name": "Load Testing",
+    "platform": "Platform_B",
+    "debugger": "Segger",
+    "os": "Windows 11",
+    "priority": "high",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 5,
+      "notRun": 8,
+      "total": 13
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 1,
+      "notRun": 2,
+      "total": 3
+    },
+    "estimatedTime": 7.08,
+    "requiresHardware": true,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "10:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "11:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "12:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "13:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "14:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "15:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "16:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "17:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.983Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "10:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "11:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "12:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "13:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "14:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "15:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "16:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "17:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-bgjtzjxce-mempo1ot",
+    "name": "Stress Testing",
+    "platform": "Platform_A",
+    "debugger": "S32_DBG",
+    "os": "Windows 11",
+    "priority": "urgent",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 2,
+      "notRun": 5,
+      "total": 7
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 2,
+      "notRun": 3,
+      "total": 5
+    },
+    "estimatedTime": 10.58,
+    "requiresHardware": true,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "10:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "11:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "12:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "13:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "14:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "15:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "16:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "17:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "6:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "7:00"
+      },
+      {
+        "dateKey": "2025-08-22",
+        "slotKey": "8:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.978Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "10:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "11:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "12:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "13:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "14:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "15:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "16:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "17:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "6:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "7:00"
+        },
+        {
+          "dateKey": "2025-08-22",
+          "slotKey": "8:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-2e7r1srwc-mempo1ot",
+    "name": "Unit Testing",
+    "platform": "Platform_B",
+    "debugger": null,
+    "os": "Windows 11",
+    "priority": "normal",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 10,
+      "total": 10
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 2,
+      "total": 2
+    },
+    "estimatedTime": 4.83,
+    "requiresHardware": false,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "14:00"
+      },
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "15:00"
+      },
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "16:00"
+      },
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "17:00"
+      },
+      {
+        "dateKey": "2025-08-28",
+        "slotKey": "6:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.988Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "14:00"
+        },
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "15:00"
+        },
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "16:00"
+        },
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "17:00"
+        },
+        {
+          "dateKey": "2025-08-28",
+          "slotKey": "6:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-na15croc6-mempo1ot",
+    "name": "Integration Testing",
+    "platform": null,
+    "debugger": null,
+    "os": "Ubuntu 24.04",
+    "priority": "high",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 5,
+      "notRun": 15,
+      "total": 20
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 1,
+      "notRun": 3,
+      "total": 4
+    },
+    "estimatedTime": 9.66,
+    "requiresHardware": false,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "10:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "11:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "12:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "13:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "14:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "15:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "16:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "17:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "6:00"
+      },
+      {
+        "dateKey": "2025-08-27",
+        "slotKey": "7:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.984Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "10:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "11:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "12:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "13:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "14:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "15:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "16:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "17:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "6:00"
+        },
+        {
+          "dateKey": "2025-08-27",
+          "slotKey": "7:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  },
+  {
+    "id": "id-qhpmh31nl-mempo1ot",
+    "name": "Simple Test Case",
+    "platform": "Platform_A",
+    "debugger": "S32_DBG",
+    "os": "Windows 11",
+    "priority": "normal",
+    "normalTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 10,
+      "total": 10
+    },
+    "comboTestCases": {
+      "pass": 0,
+      "fail": 0,
+      "notRun": 1,
+      "total": 1
+    },
+    "estimatedTime": 2.83,
+    "requiresHardware": true,
+    "status": "scheduled",
+    "createdAt": "2025-08-22T10:52:11.021Z",
+    "source": "csv",
+    "scheduledSlots": [
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "6:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "7:00"
+      },
+      {
+        "dateKey": "2025-08-26",
+        "slotKey": "8:00"
+      }
+    ],
+    "assignedHardware": {},
+    "assignedMachine": null,
+    "scheduledAt": "2025-08-22T10:52:38.986Z",
+    "schedule": {
+      "slots": [
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "6:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "7:00"
+        },
+        {
+          "dateKey": "2025-08-26",
+          "slotKey": "8:00"
+        }
+      ],
+      "assignedHardware": {},
+      "assignedMachine": null,
+      "scheduledBy": "auto-scheduler"
+    }
+  }
+]

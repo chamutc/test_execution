@@ -1,0 +1,364 @@
+# Jenkins Test Scheduler System - Complete Project Specification
+
+## Project Overview
+Build a comprehensive web-based Jenkins test scheduler application that manages test sessions, hardware resources, and machine allocation through CSV import, intelligent scheduling algorithms, and real-time collaboration features.
+
+## Technology Stack
+- **Backend**: Node.js with Express.js framework
+- **Frontend**: React.js with Material-UI components
+- **Real-time Communication**: Socket.IO for live updates
+- **Data Storage**: JSON file-based persistence
+- **File Processing**: CSV upload and parsing with Multer
+- **API Architecture**: RESTful endpoints with comprehensive error handling
+
+## Core System Architecture
+
+### 1. CSV Import and Processing System
+
+#### CSV Format Support
+```csv
+Session,Platform,Debugger,Mode,OS,Priority,Num of normal test case,Num of combo test case,Status
+```
+
+#### Enhanced CSV Processing Features
+- **Mode Column Support**: Optional Mode column with default value "NA" when missing
+- **Flexible Column Handling**: Graceful handling of missing optional columns
+- **Data Validation**: Comprehensive validation with detailed error reporting
+- **Preview Functionality**: Real-time CSV preview before import
+- **Template Generation**: Downloadable CSV templates with sample data
+- **Batch Processing**: Efficient handling of large CSV files
+
+#### Time Calculation Engine
+- **Normal Test Cases**: 5 minutes per case
+- **Combo Test Cases**: 120 minutes (2 hours) per case
+- **Format Parsing**: "pass/fail/not_run" format (count fail + not_run only)
+- **Precision**: Return exact hours (2 decimal places, no rounding)
+- **Example**: 10 not_run normal + 1 not_run combo = 170 minutes = 2.83 hours
+
+### 2. Advanced Hardware Management System
+
+#### 2.1 Hardware Requirements (Read-Only Analysis)
+- **Purpose**: Display unique hardware combinations required by sessions
+- **Data Source**: Extract unique (debugger, board, mode) combinations from all sessions
+- **Display**: Read-only table showing required combinations with usage counts
+- **API**: `GET /api/hardware/requirements`
+
+#### 2.2 Hardware Inventory Management (Component-Level)
+- **Purpose**: Manage physical hardware stock in warehouse
+- **Components**: Individual boards and debuggers with quantities
+- **Features**:
+  - Track quantities of individual components (boards, debuggers)
+  - Auto-populate from CSV imports (add new debugger/board names automatically)
+  - CRUD operations with quantity validation
+  - Prevent deletion of in-use hardware
+- **Data Structure**:
+  ```json
+  {
+    "id": "uuid",
+    "type": "board|debugger",
+    "name": "string",
+    "quantity": "number",
+    "available": "number"
+  }
+  ```
+- **APIs**:
+  - `GET/POST/PUT/DELETE /api/hardware/inventory`
+  - Real-time updates via Socket.IO
+
+#### 2.3 Hardware Combinations Management
+- **Purpose**: Manage actual hardware setups (physical combinations)
+- **Features**:
+  - Create combinations of (debugger, board, mode)
+  - Validate against inventory quantities
+  - Clone combinations for quick setup
+  - Time allocation tracking (24h default, user-configurable)
+  - Hourly availability scheduling (which hours each combination is usable)
+  - Platform support mapping (which platforms each combination supports)
+- **Data Structure**:
+  ```json
+  {
+    "id": "uuid",
+    "name": "string",
+    "debugger": "string",
+    "board": "string",
+    "mode": "string (default: NA)",
+    "platformsSupported": ["string"],
+    "totalAvailableHours": 24,
+    "hourlyAvailability": {
+      "0": true, "1": true, ..., "23": true
+    },
+    "allocatedTime": "number",
+    "remainingTime": "number"
+  }
+  ```
+- **UI Features**:
+  - Combination CRUD with inventory validation
+  - Clone button for quick duplication
+  - Edit availability: Modal with 24-hour grid for enabling/disabling time slots
+  - Platform support: Multi-select dropdown with board names as suggestions
+- **APIs**:
+  - `GET/POST/PUT/DELETE /api/hardware/combinations`
+  - `POST /api/hardware/combinations/:id/clone`
+  - `PUT /api/hardware/combinations/:id/availability`
+
+### 3. Machine Management System
+- **Individual Machine Management**: Each machine as a distinct entity with Name+OS combination
+- **CRUD Operations**: Full create, read, update, delete functionality
+- **Status Tracking**: Available, in-use, maintenance states
+- **OS Compatibility**: Support for multiple operating systems
+- **Real-time Synchronization**: Live updates across all clients
+
+### 4. Enhanced Timeline Scheduling System
+
+#### 4.1 Timeline Visualization
+- **Date Navigation**: Calendar-based date selection
+- **Time Granularity**: Hour-based slots with minute precision display
+- **Visual Enhancements**:
+  - Past time slots disabled and visually distinct
+  - Current time highlighting and auto-scroll
+  - "Go to Now" button for quick navigation
+  - Drag-and-drop session scheduling
+  - Real-time updates via Socket.IO
+
+#### 4.2 Clear Schedule Function
+- **Functionality**: Reset all scheduled sessions to pending status
+- **Implementation**:
+  - "Clear Schedule" button in Timeline header
+  - Confirmation dialog for safety
+  - API endpoint: `DELETE /api/scheduling/clear`
+  - Real-time updates to all connected clients
+
+#### 4.3 Enhanced Auto-Schedule Algorithm
+- **Hardware-Aware Scheduling**: Consider both machine and hardware combination availability
+- **Matching Logic**:
+  - **Platform Match**: Session platform must be in combination's platformsSupported array
+  - **Debugger Match**: Session debugger must match combination debugger (if session has debugger)
+  - **Mode Match**: Session mode must match combination mode (NA matches all)
+  - **No Debugger**: If session has no debugger requirement, only check machine OS compatibility
+  - **Time Availability**: Check combination's hourly availability for session duration
+  - **Hardware Allocation**: Update combination's allocated time when session is scheduled
+
+#### 4.4 Queue Management System
+- **Visual Queue**: Panel showing all pending sessions ordered by priority
+- **Scheduling Process**: Visual scheduling with 2-second delays between placements
+- **Real-time Updates**: Live updates as sessions move from queue to scheduled
+- **Scheduling Strategies**: Priority-first, time-optimized, balanced approaches
+- **APIs**:
+  - `GET /api/scheduling/queue`
+  - `POST /api/scheduling/auto-schedule`
+  - `GET /api/scheduling/strategies`
+
+### 5. User Interface Design
+
+#### 5.1 Navigation Structure
+- **Flat Navigation**: Distinct tabs without nested dropdowns
+- **Main Sections**:
+  - **Sessions**: CSV import and session management
+  - **Hardware**: Requirements, Inventory, and Combinations management
+  - **Machines**: Individual machine management
+  - **Timeline**: Scheduling visualization and controls
+
+#### 5.2 Sessions Management
+- **CSV Import**: Dedicated page with file picker and data table
+- **Session List**: Display all sessions with Mode and Debugger columns
+- **Real-time Updates**: Automatic refresh on data changes
+
+#### 5.3 Hardware Management Interface
+- **Requirements Table**: Read-only display of unique combinations from sessions
+- **Inventory Management**: CRUD interface for board/debugger components
+- **Combinations Management**:
+  - Table with CRUD operations
+  - Clone functionality
+  - Availability editor with 24-hour grid
+  - Platform support multi-select
+
+#### 5.4 Timeline Interface
+- **Compact Design**: Efficient use of screen space
+- **Drag-and-Drop**: Intuitive session scheduling
+- **Visual Feedback**: Clear indication of available/unavailable slots
+- **Queue Panel**: Sidebar showing pending sessions
+- **Control Buttons**: Clear Schedule, Auto Schedule, Go to Now
+
+### 6. Real-time Features
+- **Socket.IO Integration**: Live updates across all connected clients
+- **Event Types**:
+  - `sessions:updated` - Session data changes
+  - `hardware:updated` - Hardware inventory changes
+  - `hardware:combinations_updated` - Combination changes
+  - `machines:updated` - Machine status changes
+  - `schedule:updated` - Timeline changes
+  - `queue:updated` - Queue status changes
+
+### 7. API Endpoints
+
+#### Sessions API
+- `GET /api/sessions` - Get all sessions
+- `PUT /api/sessions/:id` - Update session
+- `DELETE /api/sessions/:id` - Delete session
+
+#### CSV API
+- `POST /api/csv/upload` - Upload and process CSV
+- `POST /api/csv/validate` - Validate CSV format
+- `GET /api/csv/template/:type` - Download CSV template
+
+#### Hardware API
+- `GET /api/hardware/requirements` - Get unique combinations from sessions
+- `GET/POST/PUT/DELETE /api/hardware/inventory` - Inventory management
+- `GET/POST/PUT/DELETE /api/hardware/combinations` - Combinations management
+- `POST /api/hardware/combinations/:id/clone` - Clone combination
+- `PUT /api/hardware/combinations/:id/availability` - Update availability
+
+#### Machines API
+- `GET/POST/PUT/DELETE /api/machines` - Machine management
+- `GET /api/machines/available` - Get available machines
+
+#### Scheduling API
+- `GET /api/scheduling/date/:date` - Get schedule for date
+- `POST /api/scheduling/manual` - Manual session scheduling
+- `POST /api/scheduling/auto-schedule` - Auto-schedule sessions
+- `DELETE /api/scheduling/clear` - Clear all schedules
+- `GET /api/scheduling/queue` - Get pending sessions queue
+- `GET /api/scheduling/strategies` - Get scheduling strategies
+
+### 8. Data Models
+
+#### Session Model
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "platform": "string",
+  "debugger": "string",
+  "mode": "string (default: NA)",
+  "os": "string",
+  "priority": "urgent|high|normal",
+  "normalTestCases": "number",
+  "comboTestCases": "number",
+  "estimatedTime": "number",
+  "status": "pending|scheduled|running|completed",
+  "requiresHardware": "boolean",
+  "hardwareRequirements": {
+    "platform": "string",
+    "debugger": "string",
+    "mode": "string"
+  },
+  "schedule": {
+    "date": "string",
+    "machineId": "string",
+    "startHour": "number",
+    "endHour": "number"
+  }
+}
+```
+
+#### Machine Model
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "osType": "string",
+  "status": "available|in-use|maintenance",
+  "location": "string",
+  "specifications": "object"
+}
+```
+
+#### Hardware Inventory Model
+```json
+{
+  "id": "uuid",
+  "type": "board|debugger",
+  "name": "string",
+  "quantity": "number",
+  "available": "number",
+  "source": "csv|manual"
+}
+```
+
+#### Hardware Combination Model
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "debugger": "string",
+  "board": "string",
+  "mode": "string",
+  "platformsSupported": ["string"],
+  "totalAvailableHours": "number",
+  "hourlyAvailability": "object",
+  "allocatedTime": "number",
+  "remainingTime": "number"
+}
+```
+
+### 9. Implementation Requirements
+
+#### Error Handling
+- Comprehensive input validation
+- Graceful error recovery
+- User-friendly error messages
+- Logging for debugging
+
+#### Performance
+- Efficient CSV processing for large files
+- Optimized scheduling algorithms
+- Real-time update throttling
+- Memory management
+
+#### Security
+- File upload validation
+- Input sanitization
+- CORS configuration
+- Rate limiting
+
+#### Testing
+- Unit tests for core algorithms
+- Integration tests for API endpoints
+- End-to-end testing for user workflows
+- Performance testing with large datasets
+
+### 10. Deployment and Configuration
+
+#### Environment Setup
+- Development and production configurations
+- Environment variable management
+- Database initialization scripts
+- Sample data for testing
+
+#### File Structure
+```
+project/
+├── backend/
+│   ├── routes/
+│   ├── services/
+│   ├── models/
+│   ├── utils/
+│   └── data/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── contexts/
+│   └── public/
+└── docs/
+```
+
+## Success Criteria
+1. **Complete CSV Workflow**: Full import, validation, and processing pipeline
+2. **Hardware Management**: Three-tier system (Requirements, Inventory, Combinations)
+3. **Intelligent Scheduling**: Hardware-aware auto-scheduling with queue management
+4. **Real-time Collaboration**: Live updates across all connected clients
+5. **User Experience**: Intuitive interface with drag-and-drop functionality
+6. **Data Integrity**: Robust validation and error handling
+7. **Performance**: Efficient handling of large datasets
+8. **Extensibility**: Modular architecture for future enhancements
+
+## Deliverables
+- Complete web application with all specified features
+- Comprehensive API documentation
+- Sample CSV files and test data
+- User interface mockups and wireframes
+- Deployment instructions and configuration guides
+- Testing suite with coverage reports
+- Performance benchmarks and optimization recommendations

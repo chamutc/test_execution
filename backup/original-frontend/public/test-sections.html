@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .nav-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .nav-button:hover {
+            background: #0056b3;
+        }
+        
+        .nav-button.active {
+            background: #28a745;
+        }
+        
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 2px solid #ddd;
+        }
+        
+        .section.hidden {
+            display: none !important;
+        }
+        
+        .section.visible {
+            display: block !important;
+        }
+        
+        .debug {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Section Switching Test</h1>
+    
+    <div class="navigation">
+        <button class="nav-button active" onclick="showSection('sessionsSection', this)">📋 Sessions</button>
+        <button class="nav-button" onclick="showSection('timelineSection', this)">📅 Timeline</button>
+        <button onclick="debugSections()" style="background: #6c757d; color: white; border: none; padding: 10px 20px; margin: 5px; border-radius: 4px;">🔍 Debug</button>
+    </div>
+    
+    <div class="debug" id="debugInfo">
+        Debug info will appear here...
+    </div>
+    
+    <!-- Sessions Section -->
+    <section class="section visible" id="sessionsSection">
+        <h2>📋 Sessions Management</h2>
+        <p>This is the Sessions section content.</p>
+        <ul>
+            <li>Session 1: Test Session A</li>
+            <li>Session 2: Test Session B</li>
+            <li>Session 3: Test Session C</li>
+        </ul>
+        <p>You can manage your test sessions here.</p>
+    </section>
+    
+    <!-- Timeline Section -->
+    <section class="section hidden" id="timelineSection">
+        <h2>📅 Timeline View</h2>
+        <p>This is the Timeline section content.</p>
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 20px 0;">
+            <div style="background: #e9ecef; padding: 10px; text-align: center;">Mon</div>
+            <div style="background: #e9ecef; padding: 10px; text-align: center;">Tue</div>
+            <div style="background: #e9ecef; padding: 10px; text-align: center;">Wed</div>
+            <div style="background: #e9ecef; padding: 10px; text-align: center;">Thu</div>
+            <div style="background: #e9ecef; padding: 10px; text-align: center;">Fri</div>
+            <div style="background: #e9ecef; padding: 10px; text-align: center;">Sat</div>
+            <div style="background: #e9ecef; padding: 10px; text-align: center;">Sun</div>
+        </div>
+        <p>Timeline and scheduling functionality goes here.</p>
+    </section>
+    
+    <script>
+        function showSection(sectionId, buttonElement) {
+            console.log('🔄 Switching to:', sectionId);
+            
+            // Update button states
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+            
+            // Hide all sections
+            const sections = ['sessionsSection', 'timelineSection'];
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section) {
+                    section.classList.remove('visible');
+                    section.classList.add('hidden');
+                    console.log('✅ Hidden:', id);
+                }
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('visible');
+                console.log('✅ Shown:', sectionId);
+            }
+            
+            // Update debug info
+            updateDebugInfo();
+        }
+        
+        function debugSections() {
+            console.log('=== Section Debug ===');
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                const computed = window.getComputedStyle(section);
+                console.log(`${section.id}:`);
+                console.log('  Classes:', section.className);
+                console.log('  Display:', computed.display);
+                console.log('  Visibility:', computed.visibility);
+                console.log('  Opacity:', computed.opacity);
+            });
+            updateDebugInfo();
+        }
+        
+        function updateDebugInfo() {
+            const debugDiv = document.getElementById('debugInfo');
+            const sections = document.querySelectorAll('section');
+            let info = 'Section States:\n';
+            
+            sections.forEach(section => {
+                const computed = window.getComputedStyle(section);
+                info += `${section.id}: display=${computed.display}, classes=${section.className}\n`;
+            });
+            
+            debugDiv.textContent = info;
+        }
+        
+        // Initialize
+        updateDebugInfo();
+    </script>
+</body>
+</html>

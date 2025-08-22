@@ -1,0 +1,14 @@
+Session,Platform,Debugger,OS,Priority,Num of normal test case,Num of combo test case,Status
+API Integration Test,Platform_A,S32_DBG,Ubuntu 24.04,high,0/5/10,0/1/1,pending
+UI Automation Suite,Platform_B,Segger,Windows 11,normal,0/8/15,0/0/1,pending
+Performance Benchmark,Platform_C,PNE,Ubuntu 24.04,urgent,0/3/5,0/2/3,pending
+Security Validation,Platform_A,S32_DBG,Windows 11,high,0/4/8,0/1/1,completed
+Cross-Platform Test,Platform_B,,Ubuntu 24.04,normal,0/6/12,,pending
+Memory Leak Detection,Platform_C,PNE,Windows 11,urgent,0/2/6,0/1/4,pending
+Regression Test Suite,,S32_DBG,Ubuntu 24.04,normal,,0/0/1,pending
+Load Testing,Platform_B,Segger,Windows 11,high,0/5/8,0/1/2,pending
+Compatibility Check,,,,normal,,,completed
+Stress Testing,Platform_A,S32_DBG,Windows 11,urgent,0/2/5,0/2/3,pending
+Unit Testing,Platform_B,,Windows 11,normal,0/0/10,0/0/2,pending
+Integration Testing,,,Ubuntu 24.04,high,0/5/15,0/1/3,pending
+Simple Test Case,Platform_A,S32_DBG,Windows 11,normal,0/0/10,0/0/1,pending

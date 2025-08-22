@@ -1,0 +1,74 @@
+[
+  {
+    "id": "id-crryyler9-melojor0",
+    "name": "Ubuntu 24.04-01",
+    "osType": "Ubuntu 24.04",
+    "quantity": 1,
+    "status": "maintenance",
+    "specifications": {},
+    "createdAt": "2025-08-21T17:33:01.836Z",
+    "updatedAt": "2025-08-21T17:33:01.836Z",
+    "currentSession": null,
+    "lastUpdated": "2025-08-21T18:41:31.916Z"
+  },
+  {
+    "id": "id-inaegb8my-melojor0",
+    "name": "Ubuntu 24.04-02",
+    "osType": "Ubuntu 24.04",
+    "quantity": 1,
+    "status": "available",
+    "specifications": {},
+    "createdAt": "2025-08-21T17:33:01.836Z",
+    "updatedAt": "2025-08-21T17:33:01.836Z"
+  },
+  {
+    "id": "id-16ru38w2w-melojor0",
+    "name": "Ubuntu 24.04-03",
+    "osType": "Ubuntu 24.04",
+    "quantity": 1,
+    "status": "available",
+    "specifications": {},
+    "createdAt": "2025-08-21T17:33:01.836Z",
+    "updatedAt": "2025-08-21T17:33:01.836Z"
+  },
+  {
+    "id": "id-bf0wkw96r-melojor0",
+    "name": "Windows 11-01",
+    "osType": "Windows 11",
+    "quantity": 1,
+    "status": "available",
+    "specifications": {},
+    "createdAt": "2025-08-21T17:33:01.836Z",
+    "updatedAt": "2025-08-21T17:33:01.836Z"
+  },
+  {
+    "id": "id-kvqvly6lx-melojor0",
+    "name": "Windows 11-02",
+    "osType": "Windows 11",
+    "quantity": 1,
+    "status": "available",
+    "specifications": {},
+    "createdAt": "2025-08-21T17:33:01.836Z",
+    "updatedAt": "2025-08-21T17:33:01.836Z"
+  },
+  {
+    "id": "id-q7qylqp1c-melojor0",
+    "name": "Windows 11-03",
+    "osType": "Windows 11",
+    "quantity": 1,
+    "status": "available",
+    "specifications": {},
+    "createdAt": "2025-08-21T17:33:01.836Z",
+    "updatedAt": "2025-08-21T17:33:01.836Z"
+  },
+  {
+    "id": "id-tmgxhjllr-melojor0",
+    "name": "Test Machine Debug",
+    "osType": "Ubuntu 22.04",
+    "quantity": 1,
+    "status": "available",
+    "specifications": {},
+    "createdAt": "2025-08-21T17:33:01.836Z",
+    "updatedAt": "2025-08-21T17:33:01.836Z"
+  }
+]

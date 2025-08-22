@@ -1,0 +1,718 @@
+{
+  "id": "schedule-1755795235649",
+  "createdAt": "2025-08-21T16:53:55.649Z",
+  "startDate": "2025-08-21T16:53:55.637Z",
+  "timeline": {
+    "2025-08-21": {
+      "6:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "7:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "8:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "9:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "10:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "11:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "12:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "13:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "14:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "15:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "16:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "17:00": {
+        "sessions": [
+          "1cb74174-bf71-4a0c-8876-a31de51b7e2d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      }
+    },
+    "2025-08-22": {
+      "6:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "7:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "8:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "9:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "10:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "11:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "12:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "13:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "14:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "15:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "16:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "17:00": {
+        "sessions": [
+          "b0b8141b-826a-4523-a804-0d4137a2531d"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      }
+    },
+    "2025-08-23": {
+      "6:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "7:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "8:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "9:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "10:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "11:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "12:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "13:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "14:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "15:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "16:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "17:00": {
+        "sessions": [
+          "082ae7ab-0cfb-49cb-84d7-cb469ce335c1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      }
+    },
+    "2025-08-24": {
+      "6:00": {
+        "sessions": [
+          "87ffd2c0-9692-4ea9-b416-18c2eab81e76"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "7:00": {
+        "sessions": [
+          "87ffd2c0-9692-4ea9-b416-18c2eab81e76"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "8:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "9:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "10:00": {
+        "sessions": [
+          "f144027d-dd11-4150-bc4c-917efd351214"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "11:00": {
+        "sessions": [
+          "f144027d-dd11-4150-bc4c-917efd351214"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "12:00": {
+        "sessions": [
+          "f144027d-dd11-4150-bc4c-917efd351214"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "13:00": {
+        "sessions": [
+          "f144027d-dd11-4150-bc4c-917efd351214"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "14:00": {
+        "sessions": [
+          "f144027d-dd11-4150-bc4c-917efd351214"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "15:00": {
+        "sessions": [
+          "f144027d-dd11-4150-bc4c-917efd351214"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "16:00": {
+        "sessions": [
+          "ae7eeecd-aa0c-4628-a83f-1a100a49bb5e"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "17:00": {
+        "sessions": [
+          "ae7eeecd-aa0c-4628-a83f-1a100a49bb5e"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      }
+    },
+    "2025-08-25": {
+      "6:00": {
+        "sessions": [
+          "2044de56-5fdc-4ea6-a378-ca5739b1416f"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "7:00": {
+        "sessions": [
+          "2044de56-5fdc-4ea6-a378-ca5739b1416f"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "8:00": {
+        "sessions": [
+          "2044de56-5fdc-4ea6-a378-ca5739b1416f"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "9:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "10:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "11:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "12:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "13:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "14:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "15:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "16:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "17:00": {
+        "sessions": [
+          "6556cd06-85ad-44cb-b596-b92a8d73fde1"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      }
+    },
+    "2025-08-26": {
+      "6:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "7:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "8:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "9:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "10:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "11:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "12:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "13:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "14:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "15:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "16:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "17:00": {
+        "sessions": [
+          "58cde627-a531-4af5-9c32-ff3f539a2a42"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      }
+    },
+    "2025-08-27": {
+      "6:00": {
+        "sessions": [
+          "663f46f5-022c-4097-830a-fc3f0a033b0e"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "7:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "8:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "9:00": {
+        "sessions": [],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": true
+      },
+      "10:00": {
+        "sessions": [
+          "09847bdf-3ce4-4d2e-bb73-df2a81794f61"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "11:00": {
+        "sessions": [
+          "09847bdf-3ce4-4d2e-bb73-df2a81794f61"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "12:00": {
+        "sessions": [
+          "09847bdf-3ce4-4d2e-bb73-df2a81794f61"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "13:00": {
+        "sessions": [
+          "09847bdf-3ce4-4d2e-bb73-df2a81794f61"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "14:00": {
+        "sessions": [
+          "663f46f5-022c-4097-830a-fc3f0a033b0e"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "15:00": {
+        "sessions": [
+          "663f46f5-022c-4097-830a-fc3f0a033b0e"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "16:00": {
+        "sessions": [
+          "663f46f5-022c-4097-830a-fc3f0a033b0e"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      },
+      "17:00": {
+        "sessions": [
+          "663f46f5-022c-4097-830a-fc3f0a033b0e"
+        ],
+        "hardwareUsed": {},
+        "machinesUsed": {},
+        "available": false
+      }
+    }
+  },
+  "hardwareUsage": {
+    "fe73d6b2-6bad-47f2-a166-07466e4574e5": {
+      "name": "Platform_A",
+      "type": "platform",
+      "totalQuantity": 1,
+      "usage": {}
+    },
+    "85bd5222-9265-4782-aac2-c94987fc3c83": {
+      "name": "Platform_B",
+      "type": "platform",
+      "totalQuantity": 1,
+      "usage": {}
+    },
+    "f071d8b1-5c2a-4ada-8bdb-ac9ec5995cb5": {
+      "name": "Platform_C",
+      "type": "platform",
+      "totalQuantity": 1,
+      "usage": {}
+    },
+    "33d87b7d-2948-40da-bc17-17d38241561d": {
+      "name": "S32_DBG",
+      "type": "debugger",
+      "totalQuantity": 1,
+      "usage": {}
+    },
+    "7ccf0a97-43a5-47cf-aecf-4d7fdd2cd149": {
+      "name": "Segger",
+      "type": "debugger",
+      "totalQuantity": 1,
+      "usage": {}
+    },
+    "4c41f141-6ca4-4eab-b0b5-cbc65644e582": {
+      "name": "PNE",
+      "type": "debugger",
+      "totalQuantity": 1,
+      "usage": {}
+    }
+  },
+  "summary": {
+    "totalSessions": 11,
+    "scheduled": 11,
+    "queued": 0,
+    "conflicts": 0,
+    "schedulingRate": 100,
+    "totalEstimatedTime": 68.96
+  },
+  "options": {}
+}
