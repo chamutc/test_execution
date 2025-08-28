@@ -1,6 +1,14 @@
 const express = require('express');
 const SchedulingEngine = require('../services/schedulingEngine');
 
+// Date formatting utility
+const format = (date, formatStr) => {
+  if (formatStr === 'yyyy-MM-dd') {
+    return date.toISOString().split('T')[0];
+  }
+  return date.toISOString();
+};
+
 const router = express.Router();
 
 // Test route
@@ -11,6 +19,144 @@ router.get('/test', (req, res) => {
     dataService: req.dataService ? 'Available' : 'Not available',
     socketService: req.socketService ? 'Available' : 'Not available'
   });
+});
+
+// Debug route to check machine-session mapping
+router.get('/debug/:date', (req, res) => {
+  try {
+    const { date } = req.params;
+    const dataService = req.dataService;
+    
+    if (!dataService) {
+      return res.status(500).json({
+        success: false,
+        error: 'DataService not available'
+      });
+    }
+    
+    // Get machines
+    const machines = dataService.getAllMachines();
+    const machineIds = machines.map(m => ({ id: m.id, name: m.name, osType: m.osType }));
+    
+    // Get sessions for today that are scheduled
+    const allSessions = dataService.getAllSessions();
+    const scheduledSessions = allSessions.filter(s => 
+      s.status === 'scheduled' && 
+      s.schedule && 
+      s.schedule.slots && 
+      s.schedule.slots.some(slot => slot.dateKey === date)
+    );
+    
+    const sessionInfo = scheduledSessions.map(s => ({
+      sessionId: s.id,
+      sessionName: s.name,
+      assignedMachineId: s.schedule?.assignedMachine?.id || 'unknown',
+      status: s.status,
+      slots: s.schedule?.slots || []
+    }));
+    
+    res.json({
+      success: true,
+      date,
+      machineCount: machines.length,
+      machineIds: machineIds.slice(0, 3), // First 3 for brevity
+      scheduledSessionCount: scheduledSessions.length,
+      sessionInfo,
+      orphanedCount: sessionInfo.filter(s => !machineIds.find(m => m.id === s.assignedMachineId)).length
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
+// Test frontend data mapping
+router.get('/test-frontend/:date', (req, res) => {
+  try {
+    const { date } = req.params;
+    const dataService = req.dataService;
+    
+    // Simulate what frontend timeline does
+    const latestSchedule = dataService.getLatestSchedule();
+    const machines = dataService.getAllMachines();
+    
+    if (!latestSchedule || !latestSchedule.timeline) {
+      return res.json({
+        success: true,
+        message: 'No schedule found',
+        totalSessions: 0,
+        orphanedCount: 0
+      });
+    }
+    
+    const scheduleData = latestSchedule.timeline[date];
+    
+    // Extract sessions like the frontend does
+    const sessions = [];
+    if (scheduleData) {
+      Object.entries(scheduleData).forEach(([timeSlot, slotData]) => {
+        if (slotData.sessions && slotData.sessions.length > 0) {
+          slotData.sessions.forEach(sessionId => {
+            const session = dataService.getSessionById(sessionId);
+            if (session) {
+              const startH = parseInt(timeSlot.split(':')[0]);
+              const machineId = session.schedule?.assignedMachine?.id || 'unknown';
+              
+              sessions.push({
+                id: `${sessionId}-${timeSlot}`,
+                sessionId: sessionId,
+                sessionName: session.name,
+                machineId: machineId,
+                startHour: startH,
+                endHour: startH + Math.max(1, Math.ceil(session.estimatedTime || 1)),
+                status: session.status || 'scheduled',
+                priority: session.priority,
+                estimatedTime: session.estimatedTime,
+                platform: session.platform,
+                debugger: session.debugger,
+                os: session.os
+              });
+            }
+          });
+        }
+      });
+    }
+    
+    const knownMachineIds = machines.map(m => m.id);
+    const orphanedSessions = sessions.filter(s => !knownMachineIds.includes(s.machineId));
+    
+    // Debug: Check database vs legacy data
+    const legacyMachines = dataService.readData ? dataService.readData('machines.json') : [];
+    const dbMachines = dataService.db && dataService.db.getAllMachines ? dataService.db.getAllMachines() : [];
+    
+    res.json({
+      success: true,
+      date,
+      totalSessions: sessions.length,
+      sessions: sessions.slice(0, 3), // First 3 for brevity
+      machineCount: machines.length,
+      knownMachineIds: knownMachineIds.slice(0, 3),
+      orphanedCount: orphanedSessions.length,
+      orphanedSessions: orphanedSessions.map(s => ({ name: s.sessionName, machineId: s.machineId })),
+      debug: {
+        legacyMachineCount: legacyMachines.length,
+        dbMachineCount: dbMachines.length,
+        legacyMachineIds: legacyMachines.slice(0, 3).map(m => m.id),
+        dbMachineIds: dbMachines.slice(0, 3).map(m => m.id),
+        dataServiceDbExists: !!dataService.db,
+        dataServiceDbGetAllMachines: !!(dataService.db && dataService.db.getAllMachines),
+        getAllMachinesMethod: typeof dataService.getAllMachines
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
 });
 
 /**
@@ -57,6 +203,11 @@ router.post('/auto-schedule', async (req, res) => {
     const hardware = dataService.getAllHardware();
     const machines = dataService.getAllMachines();
     const combinations = dataService.getHardwareCombinations();
+    
+    // Debug: Log machine IDs being used for scheduling
+    console.log('🔥 AUTO-SCHEDULING MACHINES DEBUG 🔥');
+    console.log('Machines for scheduling:', machines.map(m => ({ id: m.id, name: m.name, osType: m.osType })));
+    console.log('Total machines:', machines.length);
 
     // Normalize sessions (ensure requiredOS field is present)
     sessionsToSchedule = sessionsToSchedule.map(s => ({ ...s, requiredOS: s.requiredOS || s.os }));
@@ -89,6 +240,7 @@ router.post('/auto-schedule', async (req, res) => {
 
     // Update session statuses and save schedule
     const updatedSessions = [];
+    const scheduleEntries = {};
 
     // Update scheduled sessions
     schedulingResult.scheduled.forEach(scheduledSession => {
@@ -104,8 +256,43 @@ router.post('/auto-schedule', async (req, res) => {
         }
       };
 
-      dataService.updateSession(scheduledSession.id, sessionUpdate);
+      const updated = dataService.updateSession(scheduledSession.id, sessionUpdate);
+      console.log('Updated session:', updated ? 'success' : 'failed', scheduledSession.id);
+      
+      // Ensure the update is persisted
+      if (!updated) {
+        console.error('Failed to update session:', scheduledSession.id);
+      } else {
+        console.log('Session status updated to scheduled:', scheduledSession.id, updated.status);
+      }
+      
       updatedSessions.push(sessionUpdate);
+
+      // Build schedule entries for schedules.json
+      if (scheduledSession.scheduledSlots && scheduledSession.scheduledSlots.length > 0) {
+        scheduledSession.scheduledSlots.forEach(slot => {
+          const dateKey = slot.dateKey;
+          const timeKey = slot.slotKey;
+          
+          if (!scheduleEntries[dateKey]) {
+            scheduleEntries[dateKey] = {};
+          }
+          
+          if (!scheduleEntries[dateKey][timeKey]) {
+            scheduleEntries[dateKey][timeKey] = {
+              sessions: [],
+              machines: {},
+              hardware: {}
+            };
+          }
+          
+          scheduleEntries[dateKey][timeKey].sessions.push(scheduledSession.id);
+          
+          if (scheduledSession.assignedMachine && scheduledSession.assignedMachine.id) {
+            scheduleEntries[dateKey][timeKey].machines[scheduledSession.assignedMachine.id] = true;
+          }
+        });
+      }
     });
 
     // Update queued sessions
@@ -120,7 +307,8 @@ router.post('/auto-schedule', async (req, res) => {
         }
       };
 
-      dataService.updateSession(queuedSession.id, sessionUpdate);
+      const updated = dataService.updateSession(queuedSession.id, sessionUpdate);
+      console.log('Updated queued session:', updated ? 'success' : 'failed', queuedSession.id);
       updatedSessions.push(sessionUpdate);
     });
 
@@ -129,11 +317,18 @@ router.post('/auto-schedule', async (req, res) => {
       id: `schedule-${Date.now()}`,
       createdAt: new Date().toISOString(),
       startDate: startDate,
-      timeline: schedulingResult.timeline,
+      timeline: {
+        ...schedulingResult.timeline,
+        ...scheduleEntries  // Merge timeline entries from sessions
+      },
       hardwareUsage: schedulingResult.hardwareUsage,
       summary: schedulingResult.summary,
       options: options
     };
+
+    console.log('🔥 SAVING SCHEDULE DATA TO schedules.json 🔥');
+    console.log('Schedule entries to save:', Object.keys(scheduleEntries));
+    console.log('Sample schedule entry:', Object.keys(scheduleEntries)[0] ? scheduleEntries[Object.keys(scheduleEntries)[0]] : 'none');
 
     try {
       dataService.saveSchedule(scheduleData);
@@ -143,8 +338,21 @@ router.post('/auto-schedule', async (req, res) => {
     }
 
     // Emit real-time updates
-    socketService.emitScheduleUpdate(scheduleData);
-    socketService.emitSessionUpdate(updatedSessions);
+    try {
+      // Ensure schedule data has the expected structure
+      const scheduleUpdateData = {
+        date: format(new Date(startDate), 'yyyy-MM-dd'),
+        scheduleId: scheduleData.id,
+        timestamp: new Date().toISOString(),
+        sessionsUpdated: updatedSessions.length
+      };
+      
+      socketService.emitScheduleUpdate(scheduleUpdateData);
+      socketService.emitSessionUpdate(updatedSessions);
+      console.log('Socket updates emitted for', updatedSessions.length, 'sessions');
+    } catch (error) {
+      console.error('Socket emit error:', error);
+    }
 
     res.json({
       success: true,
@@ -173,16 +381,47 @@ router.get('/analysis', async (req, res) => {
     console.log('DataService:', dataService ? 'Available' : 'Not available');
 
     // Get all pending sessions
+    const allSessions = dataService.getAllSessions();
+    const pendingSessions = allSessions.filter(session =>
+      session.status === 'pending' || session.status === 'queued'
+    );
+
+    res.json({
+      success: true,
+      data: {
+        totalSessions: allSessions.length,
+        pendingSessions: pendingSessions.length,
+        scheduledSessions: allSessions.filter(s => s.status === 'scheduled').length
+      }
+    });
+  } catch (error) {
+    console.error('Analysis error:', error);
+    res.status(500).json({ success: false, error: 'Failed to get analysis' });
+  }
+});
+
 /**
  * Queue endpoints
  */
 router.get('/queue', (req, res) => {
+  console.log('🔥 QUEUE ENDPOINT CALLED! 🔥');
   try {
     const dataService = req.dataService;
+    if (!dataService) {
+      console.error('DataService not available in queue endpoint');
+      return res.status(500).json({ success: false, error: 'DataService not available' });
+    }
+    
     const allSessions = dataService.getAllSessions();
+    console.log('Total sessions:', allSessions.length);
+    
     const queue = allSessions
       .filter(s => s.status === 'pending' || s.status === 'queued')
       .sort((a, b) => (b.priority === 'urgent') - (a.priority === 'urgent') || (b.priority === 'high') - (a.priority === 'high'));
+    
+    console.log('Queue sessions:', queue.length);
+    console.log('Queue items:', queue.map(s => ({ name: s.name, status: s.status, priority: s.priority })));
+    
     res.json({ success: true, data: queue });
   } catch (error) {
     console.error('Queue fetch error:', error);
@@ -198,54 +437,15 @@ router.get('/strategies', (req, res) => {
   ]});
 });
 
-    const allSessions = dataService.getAllSessions();
-    const pendingSessions = allSessions.filter(session =>
-      session.status === 'pending' || session.status === 'queued'
-    );
-
-    // Get hardware and machines
-    const hardware = dataService.getAllHardware();
-    const machines = dataService.getAllMachines();
-
-    // Analyze hardware requirements
-    const hardwareAnalysis = analyzeHardwareRequirements(pendingSessions, hardware);
-
-    // Analyze time requirements
-    const timeAnalysis = analyzeTimeRequirements(pendingSessions);
-
-    // Analyze machine requirements
-    const machineAnalysis = analyzeMachineRequirements(pendingSessions, machines);
-
-    // Generate recommendations
-    const recommendations = generateRecommendations(
-      hardwareAnalysis,
-      timeAnalysis,
-      machineAnalysis
-    );
-
-    res.json({
-      success: true,
-      analysis: {
-        hardware: hardwareAnalysis,
-        time: timeAnalysis,
-        machines: machineAnalysis,
-        recommendations: recommendations,
-        summary: {
-          totalPendingSessions: pendingSessions.length,
-          estimatedTotalTime: timeAnalysis.totalTime,
-          hardwareBottlenecks: hardwareAnalysis.bottlenecks.length,
-          machineBottlenecks: machineAnalysis.bottlenecks.length
-        }
-      }
-    });
-
+// Clear all schedules
+router.delete('/clear-schedules', (req, res) => {
+  try {
+    const dataService = req.dataService;
+    dataService.clearSchedules();
+    res.json({ success: true, message: 'All schedules cleared' });
   } catch (error) {
-    console.error('Scheduling analysis error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Analysis failed',
-      details: error.message
-    });
+    console.error('Clear schedules error:', error);
+    res.status(500).json({ success: false, error: 'Failed to clear schedules' });
   }
 });
 
@@ -261,6 +461,25 @@ router.get('/date/:date', async (req, res) => {
 
     // Get latest schedule
     const latestSchedule = dataService.getLatestSchedule();
+    
+    // Get machines from machines API to ensure consistency with frontend
+    let availableMachines = [];
+    try {
+      // Get machines from machines API to ensure consistency
+      const machinesResponse = await fetch('http://localhost:3000/api/machines');
+      if (machinesResponse.ok) {
+        const machinesData = await machinesResponse.json();
+        availableMachines = machinesData.machines || [];
+        console.log('Fetched machines from API:', availableMachines.length);
+        console.log('API Machine IDs:', availableMachines.slice(0, 3).map(m => m.id));
+      } else {
+        console.log('Failed to fetch machines from API, falling back to database');
+        availableMachines = dataService.getAllMachines();
+      }
+    } catch (error) {
+      console.log('Error fetching machines from API, falling back to database:', error.message);
+      availableMachines = dataService.getAllMachines();
+    }
 
     if (!latestSchedule || !latestSchedule.timeline) {
       return res.json({
@@ -280,6 +499,19 @@ router.get('/date/:date', async (req, res) => {
       });
     }
 
+    // Create machine mapping for orphaned sessions (by OS type)
+    const machinesByOS = {};
+    availableMachines.forEach(machine => {
+      const osType = machine.osType || machine.os;
+      if (!machinesByOS[osType]) {
+        machinesByOS[osType] = [];
+      }
+      machinesByOS[osType].push(machine);
+    });
+    
+    console.log('Available machines for mapping:', availableMachines.map(m => ({ id: m.id, name: m.name, osType: m.osType || m.os })));
+    console.log('Machines by OS:', Object.keys(machinesByOS).map(os => ({ os, count: machinesByOS[os].length, firstId: machinesByOS[os][0]?.id })));
+
     // Convert timeline format to session list format expected by frontend
     const sessions = [];
     const existingKeys = new Set();
@@ -292,21 +524,53 @@ router.get('/date/:date', async (req, res) => {
           if (session) {
             const startH = parseInt(timeSlot.split(':')[0]);
             const key = `${sessionId}-${startH}`;
-            existingKeys.add(key);
-            sessions.push({
-              id: `${sessionId}-${timeSlot}`,
-              sessionId: sessionId,
-              sessionName: session.name,
-              machineId: session.assignedMachine?.id || session.schedule?.machineId || 'machine_1',
-              startHour: startH,
-              endHour: startH + Math.max(1, Math.ceil(session.estimatedTime || 1)),
-              status: session.status || 'scheduled',
-              priority: session.priority,
-              estimatedTime: session.estimatedTime,
-              platform: session.platform,
-              debugger: session.debugger,
-              os: session.os
-            });
+            if (!existingKeys.has(key)) {
+              existingKeys.add(key);
+              
+              // Get machine ID from session schedule or assigned machine
+              let machineId = null;
+              if (session.schedule?.assignedMachine?.id) {
+                machineId = session.schedule.assignedMachine.id;
+              } else if (session.assignedMachine?.id) {
+                machineId = session.assignedMachine.id;
+              } else if (session.schedule?.machineId) {
+                machineId = session.schedule.machineId;
+              }
+              
+              // DYNAMIC force mapping to current machines for display
+              if (session.os === 'Ubuntu 24.04') {
+                const ubuntuMachine = availableMachines.find(m => m.osType === 'Ubuntu 24.04');
+                machineId = ubuntuMachine ? ubuntuMachine.id : availableMachines[0]?.id;
+                console.log(`Dynamic mapping session ${session.name} to Ubuntu machine ${machineId}`);
+              } else if (session.os === 'Windows 11') {
+                const windowsMachine = availableMachines.find(m => m.osType === 'Windows 11');
+                machineId = windowsMachine ? windowsMachine.id : availableMachines[0]?.id;
+                console.log(`Dynamic mapping session ${session.name} to Windows machine ${machineId}`);
+              } else if (session.os === 'Ubuntu 22.04') {
+                const ubuntu22Machine = availableMachines.find(m => m.osType === 'Ubuntu 22.04');
+                machineId = ubuntu22Machine ? ubuntu22Machine.id : availableMachines[0]?.id;
+                console.log(`Dynamic mapping session ${session.name} to Ubuntu 22.04 machine ${machineId}`);
+              } else {
+                // Fallback to first available machine
+                machineId = availableMachines[0]?.id;
+                console.log(`Fallback mapping session ${session.name} to first available machine ${machineId}`);
+              }
+              
+              sessions.push({
+                id: `${sessionId}-${timeSlot}`,
+                sessionId: sessionId,
+                sessionName: session.name,
+                machineId: machineId || 'unknown',
+                startHour: startH,
+                endHour: startH + Math.max(1, Math.ceil(session.estimatedTime || 1)),
+                status: session.status || 'scheduled',
+                priority: session.priority,
+                estimatedTime: session.estimatedTime,
+                platform: session.platform,
+                debugger: session.debugger,
+                os: session.os
+              });
+            }
           }
         });
       }

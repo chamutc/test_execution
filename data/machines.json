@@ -1,74 +1,32 @@
 [
   {
-    "id": "id-crryyler9-melojor0",
-    "name": "Ubuntu 24.04-01",
-    "osType": "Ubuntu 24.04",
-    "quantity": 1,
-    "status": "maintenance",
-    "specifications": {},
-    "createdAt": "2025-08-21T17:33:01.836Z",
-    "updatedAt": "2025-08-21T17:33:01.836Z",
+    "id": "136c486a-e87e-41d0-92ce-d04fa51bd3a2",
+    "name": "Mc1",
+    "osType": "Windows 11",
+    "status": "available",
     "currentSession": null,
-    "lastUpdated": "2025-08-21T18:41:31.916Z"
+    "capabilities": {
+      "maxConcurrentSessions": 1,
+      "supportedPlatforms": [],
+      "supportedDebuggers": [],
+      "features": []
+    },
+    "createdAt": "2025-08-28T10:57:17.352Z",
+    "lastUpdated": "2025-08-28T10:57:17.352Z"
   },
   {
-    "id": "id-inaegb8my-melojor0",
-    "name": "Ubuntu 24.04-02",
+    "id": "ef1f34bc-7107-43a9-848f-90161c3d3857",
+    "name": "MC2",
     "osType": "Ubuntu 24.04",
-    "quantity": 1,
     "status": "available",
-    "specifications": {},
-    "createdAt": "2025-08-21T17:33:01.836Z",
-    "updatedAt": "2025-08-21T17:33:01.836Z"
-  },
-  {
-    "id": "id-16ru38w2w-melojor0",
-    "name": "Ubuntu 24.04-03",
-    "osType": "Ubuntu 24.04",
-    "quantity": 1,
-    "status": "available",
-    "specifications": {},
-    "createdAt": "2025-08-21T17:33:01.836Z",
-    "updatedAt": "2025-08-21T17:33:01.836Z"
-  },
-  {
-    "id": "id-bf0wkw96r-melojor0",
-    "name": "Windows 11-01",
-    "osType": "Windows 11",
-    "quantity": 1,
-    "status": "available",
-    "specifications": {},
-    "createdAt": "2025-08-21T17:33:01.836Z",
-    "updatedAt": "2025-08-21T17:33:01.836Z"
-  },
-  {
-    "id": "id-kvqvly6lx-melojor0",
-    "name": "Windows 11-02",
-    "osType": "Windows 11",
-    "quantity": 1,
-    "status": "available",
-    "specifications": {},
-    "createdAt": "2025-08-21T17:33:01.836Z",
-    "updatedAt": "2025-08-21T17:33:01.836Z"
-  },
-  {
-    "id": "id-q7qylqp1c-melojor0",
-    "name": "Windows 11-03",
-    "osType": "Windows 11",
-    "quantity": 1,
-    "status": "available",
-    "specifications": {},
-    "createdAt": "2025-08-21T17:33:01.836Z",
-    "updatedAt": "2025-08-21T17:33:01.836Z"
-  },
-  {
-    "id": "id-tmgxhjllr-melojor0",
-    "name": "Test Machine Debug",
-    "osType": "Ubuntu 22.04",
-    "quantity": 1,
-    "status": "available",
-    "specifications": {},
-    "createdAt": "2025-08-21T17:33:01.836Z",
-    "updatedAt": "2025-08-21T17:33:01.836Z"
+    "currentSession": null,
+    "capabilities": {
+      "maxConcurrentSessions": 1,
+      "supportedPlatforms": [],
+      "supportedDebuggers": [],
+      "features": []
+    },
+    "createdAt": "2025-08-28T10:57:28.615Z",
+    "lastUpdated": "2025-08-28T10:57:28.615Z"
   }
 ]

@@ -92,6 +92,7 @@ class SchedulingEngine {
     }
 
     // Initialize hardware usage tracking
+    context.hardwareNameToId = { platform: {}, debugger: {} };
     hardware.forEach(hw => {
       context.hardwareUsage[hw.id] = {
         name: hw.name,
@@ -99,13 +100,19 @@ class SchedulingEngine {
         totalQuantity: hw.quantityInStock || 1,
         usage: {} // dateKey -> slotKey -> quantity used
       };
+      // Build reverse lookup maps by type
+      if (hw.type === 'platform') {
+        context.hardwareNameToId.platform[hw.name] = hw.id;
+      } else if (hw.type === 'debugger') {
+        context.hardwareNameToId.debugger[hw.name] = hw.id;
+      }
     });
 
     // Initialize machine usage tracking
     machines.forEach(machine => {
       context.machineUsage[machine.id] = {
         name: machine.name,
-        os: machine.os,
+        osType: machine.osType,
         available: true,
         usage: {} // dateKey -> slotKey -> boolean
       };
@@ -298,25 +305,33 @@ class SchedulingEngine {
     const allocation = {};
 
     // Check platform availability
-    if (requiredHardware.platform) {
+    if (requiredHardware.platform || requiredHardware.platformId) {
+      const platformId = requiredHardware.platformId || context.hardwareNameToId.platform[requiredHardware.platform];
+      if (!platformId || !context.hardwareUsage[platformId]) {
+        return { success: false, reason: 'platform_not_found' };
+      }
       const platformAvailable = this.checkHardwareAvailability(
-        requiredHardware.platformId, slots, context
+        platformId, slots, context
       );
       if (!platformAvailable.available) {
         return { success: false, reason: 'platform_unavailable' };
       }
-      allocation.platform = platformAvailable.hardware;
+      allocation.platform = { id: platformId, name: platformAvailable.hardware?.name };
     }
 
     // Check debugger availability
-    if (requiredHardware.debugger) {
+    if (requiredHardware.debugger || requiredHardware.debuggerId) {
+      const debuggerId = requiredHardware.debuggerId || context.hardwareNameToId.debugger[requiredHardware.debugger];
+      if (!debuggerId || !context.hardwareUsage[debuggerId]) {
+        return { success: false, reason: 'debugger_not_found' };
+      }
       const debuggerAvailable = this.checkHardwareAvailability(
-        requiredHardware.debuggerId, slots, context
+        debuggerId, slots, context
       );
       if (!debuggerAvailable.available) {
         return { success: false, reason: 'debugger_unavailable' };
       }
-      allocation.debugger = debuggerAvailable.hardware;
+      allocation.debugger = { id: debuggerId, name: debuggerAvailable.hardware?.name };
     }
 
     return { success: true, hardware: allocation };
@@ -326,6 +341,9 @@ class SchedulingEngine {
    * Check if specific hardware is available for given slots
    */
   checkHardwareAvailability(hardwareId, slots, context) {
+    if (!hardwareId) {
+      return { available: false, reason: 'hardware_not_found' };
+    }
     const hardwareUsage = context.hardwareUsage[hardwareId];
     if (!hardwareUsage) {
       return { available: false, reason: 'hardware_not_found' };
@@ -350,10 +368,10 @@ class SchedulingEngine {
     
     // Find available machine with matching OS
     for (const [machineId, machine] of Object.entries(context.machineUsage)) {
-      if (machine.os === requiredOS) {
+      if (machine.osType === requiredOS) {
         const machineAvailable = this.checkMachineAvailability(machineId, slots, context);
         if (machineAvailable.available) {
-          return { success: true, machine: machine };
+          return { success: true, machine: { id: machineId, ...machine } };
         }
       }
     }
@@ -366,8 +384,18 @@ class SchedulingEngine {
    */
   checkMachineAvailability(machineId, slots, context) {
     const machine = context.machineUsage[machineId];
+    const now = new Date();
     
     for (const slot of slots) {
+      // Check if slot is in the past
+      const slotDate = new Date(slot.dateKey);
+      const [hour] = slot.slotKey.split(':').map(Number);
+      slotDate.setHours(hour, 0, 0, 0);
+      
+      if (slotDate.getTime() <= now.getTime()) {
+        return { available: false, reason: 'slot_in_past' };
+      }
+
       const isUsed = machine.usage[slot.dateKey]?.[slot.slotKey] || false;
       if (isUsed) {
         return { available: false, reason: 'machine_busy' };
@@ -391,6 +419,9 @@ class SchedulingEngine {
       // Update hardware usage
       Object.keys(hardware).forEach(hwType => {
         const hw = hardware[hwType];
+        if (!hw || !hw.id || !context.hardwareUsage[hw.id]) {
+          return;
+        }
         if (!context.hardwareUsage[hw.id].usage[slot.dateKey]) {
           context.hardwareUsage[hw.id].usage[slot.dateKey] = {};
         }
@@ -399,7 +430,7 @@ class SchedulingEngine {
       });
 
       // Update machine usage
-      if (machine) {
+      if (machine && machine.id && context.machineUsage[machine.id]) {
         if (!context.machineUsage[machine.id].usage[slot.dateKey]) {
           context.machineUsage[machine.id].usage[slot.dateKey] = {};
         }

@@ -10,8 +10,29 @@ const dataService = new DataService();
 router.get('/', (req, res) => {
   try {
     console.log('GET /api/machines called from:', req.get('Origin') || 'unknown origin');
-    const machines = dataService.getMachines();
+    
+    // QUICK FIX: Read machines directly from file
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(__dirname, '../../data/machines.json');
+    
+    let machines = [];
+    
+    if (fs.existsSync(filePath)) {
+      try {
+        const rawContent = fs.readFileSync(filePath, 'utf8');
+        machines = JSON.parse(rawContent);
+        console.log(`✅ Direct file read: ${machines.length} machines loaded`);
+      } catch (parseError) {
+        console.error('❌ JSON parse error:', parseError);
+        machines = [];
+      }
+    } else {
+      console.log('❌ machines.json not found');
+    }
+    
     console.log(`Returning ${machines.length} machines`);
+    console.log('Machine IDs:', machines.slice(0, 3).map(m => m.id));
     res.json({ success: true, machines });
   } catch (error) {
     console.error('Error getting machines:', error);
@@ -68,7 +89,25 @@ router.post('/', (req, res) => {
       });
     }
 
-    const machines = dataService.getMachines();
+    // QUICK FIX: Read machines directly from file
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(__dirname, '../../data/machines.json');
+    
+    let machines = [];
+    
+    if (fs.existsSync(filePath)) {
+      try {
+        const rawContent = fs.readFileSync(filePath, 'utf8');
+        machines = JSON.parse(rawContent);
+        console.log(`✅ Create endpoint: ${machines.length} machines loaded`);
+      } catch (parseError) {
+        console.error('❌ Create endpoint JSON parse error:', parseError);
+        machines = [];
+      }
+    } else {
+      console.log('❌ Create endpoint: machines.json not found');
+    }
 
     // Check if machine name already exists
     const existingMachine = machines.find(m => m.name === name);
@@ -96,7 +135,15 @@ router.post('/', (req, res) => {
     };
 
     machines.push(newMachine);
-    dataService.saveMachines(machines);
+    
+    // QUICK FIX: Write machines directly to file
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(machines, null, 2));
+      console.log(`✅ Create endpoint: ${machines.length} machines saved to file`);
+    } catch (writeError) {
+      console.error('❌ Create endpoint file write error:', writeError);
+      return res.status(500).json({ success: false, error: 'Failed to save machine to file' });
+    }
 
     // Emit updates to connected clients
     if (req.socketService) {
@@ -121,7 +168,26 @@ router.put('/:id', (req, res) => {
     const { id } = req.params;
     const { name, osType, status, capabilities } = req.body;
 
-    const machines = dataService.getMachines();
+    // QUICK FIX: Read machines directly from file
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(__dirname, '../../data/machines.json');
+    
+    let machines = [];
+    
+    if (fs.existsSync(filePath)) {
+      try {
+        const rawContent = fs.readFileSync(filePath, 'utf8');
+        machines = JSON.parse(rawContent);
+        console.log(`✅ Update endpoint: ${machines.length} machines loaded`);
+      } catch (parseError) {
+        console.error('❌ Update endpoint JSON parse error:', parseError);
+        machines = [];
+      }
+    } else {
+      console.log('❌ Update endpoint: machines.json not found');
+    }
+
     const machineIndex = machines.findIndex(m => m.id === id);
 
     if (machineIndex === -1) {
@@ -194,7 +260,27 @@ router.put('/:id', (req, res) => {
 router.delete('/:id', (req, res) => {
   try {
     const { id } = req.params;
-    const machines = dataService.getMachines();
+    
+    // QUICK FIX: Read machines directly from file
+    const fs = require('fs');
+    const path = require('path');
+    const filePath = path.join(__dirname, '../../data/machines.json');
+    
+    let machines = [];
+    
+    if (fs.existsSync(filePath)) {
+      try {
+        const rawContent = fs.readFileSync(filePath, 'utf8');
+        machines = JSON.parse(rawContent);
+        console.log(`✅ Delete endpoint: ${machines.length} machines loaded`);
+      } catch (parseError) {
+        console.error('❌ Delete endpoint JSON parse error:', parseError);
+        machines = [];
+      }
+    } else {
+      console.log('❌ Delete endpoint: machines.json not found');
+    }
+    
     const machineIndex = machines.findIndex(m => m.id === id);
 
     if (machineIndex === -1) {
@@ -215,7 +301,15 @@ router.delete('/:id', (req, res) => {
     }
 
     machines.splice(machineIndex, 1);
-    dataService.saveMachines(machines);
+    
+    // QUICK FIX: Write machines directly to file
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(machines, null, 2));
+      console.log(`✅ Delete endpoint: ${machines.length} machines saved to file`);
+    } catch (writeError) {
+      console.error('❌ Delete endpoint file write error:', writeError);
+      return res.status(500).json({ success: false, error: 'Failed to save machines to file after deletion' });
+    }
 
     // Emit updates to connected clients
     if (req.socketService) {
@@ -335,9 +429,10 @@ router.post('/types', (req, res) => {
     machineTypes.push(newMachineType);
     dataService.saveMachineTypes(machineTypes);
 
-    // Regenerate machines based on new types
+    // Regenerate machines based on new types (preserve existing machine IDs)
     const machineService = new MachineService(dataService);
-    const machines = machineService.generateMachines(machineTypes);
+    const existingMachines = dataService.getAllMachines();
+    const machines = machineService.generateMachines(machineTypes, existingMachines);
     dataService.saveMachines(machines);
 
     // Emit updates to connected clients
@@ -479,9 +574,19 @@ router.delete('/types/:id', (req, res) => {
 // Regenerate all machines based on current machine types
 router.post('/regenerate', (req, res) => {
   try {
+    console.log('⚠️ MANUAL MACHINE REGENERATION REQUESTED');
+    
     const machineTypes = dataService.getMachineTypes();
+    if (!machineTypes || machineTypes.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No machine types configured. Please add machine types first.'
+      });
+    }
+    
     const machineService = new MachineService(dataService);
-    const machines = machineService.generateMachines(machineTypes);
+    const existingMachines = dataService.getAllMachines();
+    const machines = machineService.generateMachines(machineTypes, existingMachines);
     
     dataService.saveMachines(machines);
 
@@ -490,13 +595,127 @@ router.post('/regenerate', (req, res) => {
 
     res.json({ 
       success: true, 
-      message: 'Machines regenerated successfully',
+      message: 'Machines regenerated successfully (manual request)',
       machines
     });
 
   } catch (error) {
     console.error('Error regenerating machines:', error);
     res.status(500).json({ success: false, error: 'Failed to regenerate machines' });
+  }
+});
+
+// Add new endpoint for manual machine setup
+router.post('/manual-setup', (req, res) => {
+  try {
+    const { machines } = req.body;
+    
+    if (!machines || !Array.isArray(machines)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Machines array is required'
+      });
+    }
+    
+    // Validate machine structure
+    const validMachines = machines.map(machine => ({
+      id: machine.id || `manual-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: machine.name,
+      osType: machine.osType,
+      status: machine.status || 'available',
+      currentSession: null,
+      capabilities: machine.capabilities || {
+        maxConcurrentSessions: 1,
+        supportedPlatforms: [],
+        supportedDebuggers: [],
+        features: []
+      },
+      createdAt: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
+    }));
+    
+    dataService.saveMachines(validMachines);
+    
+    // Emit updates to connected clients
+    req.socketService.emitMachineUpdate(validMachines);
+    
+    res.json({
+      success: true,
+      message: 'Machines manually configured successfully',
+      machines: validMachines
+    });
+    
+  } catch (error) {
+    console.error('Error in manual machine setup:', error);
+    res.status(500).json({ success: false, error: 'Failed to setup machines manually' });
+  }
+});
+
+// Quick fix endpoint to restore machines
+router.post('/restore-default', (req, res) => {
+  try {
+    const defaultMachines = [
+      {
+        id: 'ubuntu-24-04-01',
+        name: 'Ubuntu 24.04-01',
+        osType: 'Ubuntu 24.04',
+        status: 'available',
+        currentSession: null,
+        capabilities: {
+          maxConcurrentSessions: 1,
+          supportedPlatforms: ['Platform_A', 'Platform_C'],
+          supportedDebuggers: ['S32_DBG', 'PNE'],
+          features: ['CLI_Testing', 'Performance_Testing', 'Security_Testing']
+        },
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'ubuntu-24-04-02',
+        name: 'Ubuntu 24.04-02',
+        osType: 'Ubuntu 24.04',
+        status: 'available',
+        currentSession: null,
+        capabilities: {
+          maxConcurrentSessions: 1,
+          supportedPlatforms: ['Platform_A', 'Platform_C'],
+          supportedDebuggers: ['S32_DBG', 'PNE'],
+          features: ['CLI_Testing', 'Performance_Testing', 'Security_Testing']
+        },
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
+      },
+      {
+        id: 'windows-11-01',
+        name: 'Windows 11-01',
+        osType: 'Windows 11',
+        status: 'available',
+        currentSession: null,
+        capabilities: {
+          maxConcurrentSessions: 1,
+          supportedPlatforms: ['Platform_A', 'Platform_B', 'Platform_C'],
+          supportedDebuggers: ['S32_DBG', 'Segger', 'PNE'],
+          features: ['GUI_Testing', 'Performance_Testing', 'Compatibility_Testing']
+        },
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString()
+      }
+    ];
+    
+    dataService.saveMachines(defaultMachines);
+    
+    // Emit updates to connected clients
+    req.socketService.emitMachineUpdate(defaultMachines);
+    
+    res.json({
+      success: true,
+      message: 'Default machines restored successfully',
+      machines: defaultMachines
+    });
+    
+  } catch (error) {
+    console.error('Error restoring default machines:', error);
+    res.status(500).json({ success: false, error: 'Failed to restore default machines' });
   }
 });
 
@@ -527,6 +746,19 @@ router.get('/summary', (req, res) => {
   } catch (error) {
     console.error('Error getting machine summary:', error);
     res.status(500).json({ success: false, error: 'Failed to get machine summary' });
+  }
+});
+
+// Get available machines (optionally filter by osType)
+router.get('/available', (req, res) => {
+  try {
+    const { osType } = req.query;
+    const machines = dataService.getMachines();
+    const available = machines.filter(m => m.status === 'available' && (!osType || m.osType === osType));
+    res.json({ success: true, machines: available });
+  } catch (error) {
+    console.error('Error getting available machines:', error);
+    res.status(500).json({ success: false, error: 'Failed to get available machines' });
   }
 });
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -8,6 +8,7 @@ import {
   Button,
   IconButton,
   Divider,
+  CircularProgress,
 } from '@mui/material';
 import {
   ChevronLeft as PrevIcon,
@@ -24,9 +25,17 @@ import { format, addDays, subDays } from 'date-fns';
 import TimelineGrid from '../components/timeline/TimelineGrid';
 import AutoScheduleDialog from '../components/timeline/AutoScheduleDialog';
 
+// API Services
+import { schedulingAPI } from '../services/api';
+import { useNotification } from '../contexts/NotificationContext';
+
 const TimelinePage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [autoScheduleOpen, setAutoScheduleOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [clearingSchedule, setClearingSchedule] = useState(false);
+  
+  const { showSuccess, showError } = useNotification();
 
   const handlePreviousDay = () => {
     setSelectedDate(prev => subDays(prev, 1));
@@ -49,16 +58,37 @@ const TimelinePage = () => {
     console.log('Hardware analysis');
   };
 
-  const handleClearSchedule = () => {
+  const handleClearSchedule = async () => {
     if (window.confirm('Are you sure you want to clear the schedule for this date?')) {
-      // TODO: Implement clear schedule
-      console.log('Clear schedule for', format(selectedDate, 'yyyy-MM-dd'));
+      try {
+        setClearingSchedule(true);
+        const dateStr = format(selectedDate, 'yyyy-MM-dd');
+        
+        // Call API to clear schedule for this date
+        await schedulingAPI.clearSchedule({ date: dateStr });
+        
+        showSuccess(`Schedule cleared successfully for ${dateStr}`);
+        
+        // Refresh timeline to show updated data
+        setRefreshTrigger(prev => prev + 1);
+      } catch (error) {
+        console.error('Failed to clear schedule:', error);
+        showError('Failed to clear schedule. Please try again.');
+      } finally {
+        setClearingSchedule(false);
+      }
     }
   };
 
   const handleRefresh = () => {
-    // TODO: Implement refresh
-    console.log('Refresh timeline data');
+    // Force timeline refresh by incrementing trigger
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  const handleScheduleComplete = () => {
+    // Called when auto-scheduling completes
+    setRefreshTrigger(prev => prev + 1);
+    setAutoScheduleOpen(false);
   };
 
   return (
@@ -130,12 +160,13 @@ const TimelinePage = () => {
               
               <Button
                 variant="outlined"
-                startIcon={<ClearIcon />}
+                startIcon={clearingSchedule ? <CircularProgress size={16} /> : <ClearIcon />}
                 onClick={handleClearSchedule}
                 color="error"
                 size="small"
+                disabled={clearingSchedule}
               >
-                Clear Schedule
+                {clearingSchedule ? 'Clearing...' : 'Clear Schedule'}
               </Button>
               
               <Button
@@ -181,13 +212,14 @@ const TimelinePage = () => {
 
       {/* Timeline Grid */}
       <Paper sx={{ p: 0, overflow: 'hidden' }}>
-        <TimelineGrid selectedDate={selectedDate} />
+        <TimelineGrid selectedDate={selectedDate} refreshTrigger={refreshTrigger} />
       </Paper>
 
       {/* Auto Schedule Dialog */}
       <AutoScheduleDialog
         open={autoScheduleOpen}
         onClose={() => setAutoScheduleOpen(false)}
+        onScheduleComplete={handleScheduleComplete}
         selectedDate={selectedDate}
       />
     </Container>

@@ -3,9 +3,6 @@ import {
   Container,
   Typography,
   Box,
-  Grid,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -13,7 +10,6 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Chip,
   Alert,
   CircularProgress,
   Button,
@@ -26,47 +22,61 @@ import {
   TextField,
   Select,
   MenuItem,
+  FormControl,
+  InputLabel,
+  Chip as MuiChip,
 } from '@mui/material';
 import { hardwareAPI } from '../services/api';
 import { useSocket } from '../contexts/SocketContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { Edit as EditIcon, ContentCopy as CopyIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
-import {
-  Computer as ComputerIcon,
-  Memory as MemoryIcon,
-  Settings as SettingsIcon,
-} from '@mui/icons-material';
 
 const HardwarePageFixed = () => {
   const [requirements, setRequirements] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [combinations, setCombinations] = useState([]);
   const [platformOptions, setPlatformOptions] = useState([]);
+  const [debuggerOptions, setDebuggerOptions] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [invDialog, setInvDialog] = useState({ open: false, mode: 'create', item: { type: 'board', name: '', quantity: 0 } });
   const [availDialog, setAvailDialog] = useState({ open: false, combo: null, hours: {} });
+  const [comboDialog, setComboDialog] = useState({ 
+    open: false, 
+    mode: 'create', 
+    item: { 
+      name: '', 
+      platformId: '', 
+      debuggerId: '', 
+      mode: 'NA', 
+      platformsSupported: [], 
+      totalAvailableHours: 24,
+      enabled: true,
+      priority: 'normal',
+      description: ''
+    } 
+  });
 
   const { socket } = useSocket();
   const { showSuccess, showError } = useNotification();
 
-
-
   const loadAll = async () => {
     try {
       setLoading(true);
-      const [reqRes, invRes, comboRes, platRes] = await Promise.all([
+      const [reqRes, invRes, comboRes, platRes, debugRes] = await Promise.all([
         hardwareAPI.getRequirements(),
         hardwareAPI.getInventory(),
         hardwareAPI.getCombinations(),
         hardwareAPI.getPlatforms(),
+        hardwareAPI.getDebuggers(),
       ]);
       setRequirements(reqRes.data?.data || reqRes.data || []);
       setInventory(invRes.data?.data || invRes.data || []);
       setCombinations(comboRes.data?.data || comboRes.data || []);
-      setPlatformOptions((platRes.data?.data || platRes.data || []).map(p => p.name));
+      setPlatformOptions((platRes.data?.data || platRes.data || []).map(p => ({ id: p.id, name: p.name })));
+      setDebuggerOptions((debugRes.data?.data || debugRes.data || []).map(d => ({ id: d.id, name: d.name })));
     } catch (err) {
       setError('Failed to load hardware data');
     } finally {
@@ -114,6 +124,92 @@ const HardwarePageFixed = () => {
       closeAvailDialog();
       loadAll();
     } catch (e) { showError(e.message); }
+  };
+
+  // New combination management functions
+  const openComboDialog = (mode, item) => {
+    if (mode === 'create') {
+      setComboDialog({ 
+        open: true, 
+        mode, 
+        item: { 
+          name: '', 
+          platformId: '', 
+          debuggerId: '', 
+          mode: 'NA', 
+          platformsSupported: [], 
+          totalAvailableHours: 24,
+          enabled: true,
+          priority: 'normal',
+          description: ''
+        } 
+      });
+    } else {
+      setComboDialog({ open: true, mode, item: { ...item } });
+    }
+  };
+
+  const closeComboDialog = () => setComboDialog({ 
+    open: false, 
+    mode: 'create', 
+    item: { 
+      name: '', 
+      platformId: '', 
+      debuggerId: '', 
+      mode: 'NA', 
+      platformsSupported: [], 
+      totalAvailableHours: 24,
+      enabled: true,
+      priority: 'normal',
+      description: ''
+    } 
+  });
+
+  const saveCombination = async () => {
+    try {
+      const { mode, item } = comboDialog;
+      if (mode === 'create') {
+        await hardwareAPI.createCombination(item);
+        showSuccess('Combination created');
+      } else {
+        await hardwareAPI.updateCombination(item.id, item);
+        showSuccess('Combination updated');
+      }
+      closeComboDialog();
+      loadAll();
+    } catch (e) { showError(e.message); }
+  };
+
+  const removeCombination = async (id) => {
+    try { 
+      await hardwareAPI.deleteCombination(id); 
+      showSuccess('Combination deleted'); 
+      loadAll(); 
+    } catch (e) { showError(e.message); }
+  };
+
+  const handlePlatformChange = (event) => {
+    const platformId = event.target.value;
+    const platform = platformOptions.find(p => p.id === platformId);
+    setComboDialog(prev => ({ 
+      ...prev, 
+      item: { 
+        ...prev.item, 
+        platformId,
+        platformsSupported: platform ? [platform.name] : []
+      } 
+    }));
+  };
+
+  const handleDebuggerChange = (event) => {
+    const debuggerId = event.target.value;
+    setComboDialog(prev => ({ 
+      ...prev, 
+      item: { 
+        ...prev.item, 
+        debuggerId
+      } 
+    }));
   };
 
   if (loading) {
@@ -216,7 +312,12 @@ const HardwarePageFixed = () => {
 
       {/* Combinations */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 1 }}>Combinations</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant="h6">Combinations</Typography>
+          <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={() => openComboDialog('create')}>
+            Add Combination
+          </Button>
+        </Box>
         <TableContainer component={Paper}>
           <Table size="small">
             <TableHead>
@@ -244,8 +345,10 @@ const HardwarePageFixed = () => {
                   <TableCell>{c.allocatedTime ?? 0}</TableCell>
                   <TableCell>{c.remainingTime ?? 0}</TableCell>
                   <TableCell align="right">
+                    <Button size="small" startIcon={<EditIcon />} onClick={() => openComboDialog('edit', c)}>Edit</Button>
                     <Button size="small" startIcon={<CopyIcon />} onClick={async () => { await hardwareAPI.cloneCombination(c.id); showSuccess('Cloned'); loadAll(); }}>Clone</Button>
                     <Button size="small" startIcon={<EditIcon />} onClick={() => openAvailDialog(c)}>Availability</Button>
+                    <Button size="small" color="error" startIcon={<DeleteIcon />} onClick={() => removeCombination(c.id)}>Delete</Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -286,6 +389,135 @@ const HardwarePageFixed = () => {
         <DialogActions>
           <Button onClick={closeAvailDialog}>Cancel</Button>
           <Button variant="contained" onClick={saveAvailability}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Combination Dialog */}
+      <Dialog open={comboDialog.open} onClose={closeComboDialog} maxWidth="md" fullWidth>
+        <DialogTitle>{comboDialog.mode === 'create' ? 'Add Hardware Combination' : 'Edit Hardware Combination'}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <TextField
+              label="Combination Name"
+              value={comboDialog.item.name}
+              onChange={(e) => setComboDialog(prev => ({ ...prev, item: { ...prev.item, name: e.target.value } }))}
+              fullWidth
+              required
+            />
+            
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>Platform/Board</InputLabel>
+                <Select
+                  value={comboDialog.item.platformId}
+                  onChange={handlePlatformChange}
+                  label="Platform/Board"
+                  required
+                >
+                  {platformOptions.map((platform) => (
+                    <MenuItem key={platform.id} value={platform.id}>
+                      {platform.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
+              <FormControl fullWidth>
+                <InputLabel>Debugger</InputLabel>
+                <Select
+                  value={comboDialog.item.debuggerId}
+                  onChange={handleDebuggerChange}
+                  label="Debugger"
+                  required
+                >
+                  {debuggerOptions.map((debuggerItem) => (
+                    <MenuItem key={debuggerItem.id} value={debuggerItem.id}>
+                      {debuggerItem.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField
+                label="Mode"
+                value={comboDialog.item.mode}
+                onChange={(e) => setComboDialog(prev => ({ ...prev, item: { ...prev.item, mode: e.target.value } }))}
+                placeholder="NA"
+                fullWidth
+              />
+              
+              <TextField
+                label="Total Available Hours"
+                type="number"
+                value={comboDialog.item.totalAvailableHours}
+                onChange={(e) => setComboDialog(prev => ({ ...prev, item: { ...prev.item, totalAvailableHours: parseInt(e.target.value) || 24 } }))}
+                inputProps={{ min: 1, max: 168 }}
+                fullWidth
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl fullWidth>
+                <InputLabel>Priority</InputLabel>
+                <Select
+                  value={comboDialog.item.priority}
+                  onChange={(e) => setComboDialog(prev => ({ ...prev, item: { ...prev.item, priority: e.target.value } }))}
+                  label="Priority"
+                >
+                  <MenuItem value="low">Low</MenuItem>
+                  <MenuItem value="normal">Normal</MenuItem>
+                  <MenuItem value="high">High</MenuItem>
+                  <MenuItem value="urgent">Urgent</MenuItem>
+                </Select>
+              </FormControl>
+              
+              <FormControl fullWidth>
+                <InputLabel>Status</InputLabel>
+                <Select
+                  value={comboDialog.item.enabled ? 'enabled' : 'disabled'}
+                  onChange={(e) => setComboDialog(prev => ({ ...prev, item: { ...prev.item, enabled: e.target.value === 'enabled' } }))}
+                  label="Status"
+                >
+                  <MenuItem value="enabled">Enabled</MenuItem>
+                  <MenuItem value="disabled">Disabled</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <TextField
+              label="Description"
+              value={comboDialog.item.description}
+              onChange={(e) => setComboDialog(prev => ({ ...prev, item: { ...prev.item, description: e.target.value } }))}
+              multiline
+              rows={3}
+              fullWidth
+            />
+
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>Platforms Supported</Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {comboDialog.item.platformsSupported.map((platform, index) => (
+                  <MuiChip
+                    key={index}
+                    label={platform}
+                    onDelete={() => setComboDialog(prev => ({
+                      ...prev,
+                      item: {
+                        ...prev.item,
+                        platformsSupported: prev.item.platformsSupported.filter((_, i) => i !== index)
+                      }
+                    }))}
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeComboDialog}>Cancel</Button>
+          <Button variant="contained" onClick={saveCombination}>Save</Button>
         </DialogActions>
       </Dialog>
     </Container>

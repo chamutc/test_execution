@@ -348,6 +348,10 @@ router.post('/combinations', (req, res) => {
     res.json({ success: true, data: combination });
   } catch (error) {
     console.error('Error creating hardware combination:', error);
+    res.status(500).json({ success: false, error: 'Failed to create hardware combination' });
+  }
+});
+
 // Clone combination
 router.post('/combinations/:id/clone', (req, res) => {
   try {
@@ -385,10 +389,6 @@ router.put('/combinations/:id/availability', (req, res) => {
   } catch (error) {
     console.error('Error updating combination availability:', error);
     res.status(500).json({ success: false, error: 'Failed to update combination availability' });
-  }
-});
-
-    res.status(500).json({ success: false, error: 'Failed to create hardware combination' });
   }
 });
 

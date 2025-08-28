@@ -33,11 +33,11 @@ import {
 } from '@mui/icons-material';
 import { format, addHours, isSameDay } from 'date-fns';
 
-import { schedulingAPI, machinesAPI } from '../../services/api';
+import { timelineAPI, schedulingAPI, machinesAPI } from '../../services/api';
 import { useNotification } from '../../contexts/NotificationContext';
 import { useSocket } from '../../contexts/SocketContext';
 
-const TimelineGrid = ({ selectedDate }) => {
+const TimelineGrid = ({ selectedDate, refreshTrigger }) => {
   console.log('TimelineGrid component mounting...', { selectedDate });
 
   const [schedule, setSchedule] = useState([]);
@@ -165,12 +165,19 @@ const TimelineGrid = ({ selectedDate }) => {
       let scheduleRes, machinesRes;
 
       try {
-        console.log('Calling schedule API...');
-        scheduleRes = await schedulingAPI.getScheduleByDate(dateStr);
-        console.log('Schedule API success:', scheduleRes);
+        console.log('🚀 NEW TIMELINE API: Calling for date:', dateStr);
+        console.log('API endpoint: /timeline/date/' + dateStr);
+        scheduleRes = await timelineAPI.getTimelineByDate(dateStr);
+        console.log('✅ Timeline API success:', scheduleRes);
+        console.log('Timeline data received:', scheduleRes.data);
+        console.log('Timeline data type:', typeof scheduleRes.data);
+        console.log('Timeline data length:', Array.isArray(scheduleRes.data.data) ? scheduleRes.data.data.length : 'not array');
       } catch (err) {
-        console.error('Schedule API error:', err);
-        scheduleRes = { data: [] };
+        console.error('❌ Timeline API error:', err);
+        console.error('Error details:', err.response || err.message);
+        console.error('Error status:', err.response?.status);
+        console.error('Error data:', err.response?.data);
+        scheduleRes = { data: { data: [], machines: [] } };
       }
 
       try {
@@ -184,29 +191,42 @@ const TimelineGrid = ({ selectedDate }) => {
 
       console.log('API calls completed');
 
-      console.log('Schedule API response:', scheduleRes);
-      console.log('Schedule data:', scheduleRes.data);
-      console.log('Schedule data type:', typeof scheduleRes.data);
-      console.log('Is array:', Array.isArray(scheduleRes.data));
+      console.log('📊 NEW TIMELINE RESPONSE:', scheduleRes);
+      
+      // New timeline API returns both data and machines in one response
+      const timelineData = scheduleRes.data?.data || [];
+      const machinesFromTimeline = scheduleRes.data?.machines || [];
+      
+      console.log('✅ Timeline data extracted:', timelineData.length, 'sessions');
+      console.log('✅ Machines from timeline:', machinesFromTimeline.length, 'machines');
+      
+      // Set schedule data directly from timeline API
+      setSchedule(timelineData);
+      console.log('🎯 SCHEDULE STATE UPDATED:', timelineData.length, 'sessions loaded');
 
-      // Ensure we always set an array
-      const scheduleData = Array.isArray(scheduleRes.data) ? scheduleRes.data : [];
-      console.log('Setting schedule data:', scheduleData);
-
-      setSchedule(scheduleData);
-
-      // Handle machines API response structure
-      console.log('Machines API response:', machinesRes);
-      const machinesData = machinesRes.data?.machines || machinesRes.machines || [];
-      console.log('Machines data:', machinesData);
-      console.log('Machines data type:', typeof machinesData);
-      console.log('Is machines array:', Array.isArray(machinesData));
-
-      // Transform machines data to match frontend expectations
-      const transformedMachines = Array.isArray(machinesData) ? machinesData.map(machine => ({
+      // Use machines from timeline API (already includes correct machine IDs)
+      const transformedMachines = machinesFromTimeline.map(machine => ({
         ...machine,
         os: machine.osType || machine.os // Map osType to os for frontend compatibility
-      })) : [];
+      }));
+
+      console.log('Transformed machines:', transformedMachines.map(m => ({ id: m.id, name: m.name })));
+      console.log('Machine IDs in schedule:', timelineData.map(s => s.machineId));
+      console.log('Available machine IDs:', transformedMachines.map(m => m.id));
+      
+      // Check for orphaned sessions (should be none with new API)
+      const orphanedSessions = timelineData.filter(s => 
+        !transformedMachines.find(m => m.id === s.machineId)
+      );
+      console.log('🔍 Orphaned sessions count:', orphanedSessions.length);
+      if (orphanedSessions.length > 0) {
+        console.log('⚠️ Orphaned sessions:', orphanedSessions.map(s => ({ 
+          name: s.sessionName, 
+          machineId: s.machineId 
+        })));
+      } else {
+        console.log('✅ No orphaned sessions - all machine IDs match!');
+      }
 
       setMachines(transformedMachines);
     } catch (error) {
@@ -227,24 +247,31 @@ const TimelineGrid = ({ selectedDate }) => {
   useEffect(() => {
     loadScheduleData();
     loadQueue();
-  }, [loadScheduleData, loadQueue]);
+  }, [loadScheduleData, loadQueue, refreshTrigger]);
 
   // Socket listeners for real-time updates
   useEffect(() => {
     if (!socket) return;
 
     const handleScheduleUpdate = (data) => {
-      if (isSameDay(new Date(data.date), selectedDate)) {
+      console.log('Received schedule update:', data);
+      if (data && data.date && isSameDay(new Date(data.date), selectedDate)) {
+        loadScheduleData();
+      } else if (data) {
+        // Refresh anyway if we have data but no date
         loadScheduleData();
       }
     };
 
     const handleSessionStatusUpdate = (data) => {
-      setSchedule(prev => prev.map(item =>
-        item.sessionId === data.sessionId
-          ? { ...item, status: data.status }
-          : item
-      ));
+      console.log('Received session status update:', data);
+      if (data && data.sessionId) {
+        setSchedule(prev => prev.map(item =>
+          item.sessionId === data.sessionId
+            ? { ...item, status: data.status }
+            : item
+        ));
+      }
     };
 
     socket.on('schedule:updated', handleScheduleUpdate);
@@ -258,8 +285,27 @@ const TimelineGrid = ({ selectedDate }) => {
 
   // Get scheduled session for a specific machine and time slot
   const getScheduledSession = (machineId, hour) => {
-    return safeSchedule.find(item =>
+    const session = safeSchedule.find(item =>
       item.machineId === machineId &&
+      item.startHour <= hour &&
+      item.endHour > hour
+    );
+    
+    // Debug: Log session matching attempts
+    if (hour === 10 && safeSchedule.length > 0) {
+      console.log(`🔍 Checking machine ${machineId} at hour ${hour}:`);
+      console.log('Available sessions:', safeSchedule.map(s => ({ name: s.sessionName, machineId: s.machineId, startHour: s.startHour })));
+      console.log('Found session:', session ? session.sessionName : 'None');
+    }
+    
+    return session;
+  };
+
+  // Get scheduled sessions for unknown machines (machine ID changed)  
+  const getOrphanedSessions = (hour) => {
+    const knownMachineIds = safeMachines.map(m => m.id);
+    return safeSchedule.filter(item =>
+      !knownMachineIds.includes(item.machineId) &&
       item.startHour <= hour &&
       item.endHour > hour
     );
@@ -281,8 +327,9 @@ const TimelineGrid = ({ selectedDate }) => {
     const machine = machines.find(m => m.id === machineId);
     if (!machine || machine.status !== 'available') return false;
 
-    // Prevent scheduling in past slots
-    if (getTimeStatus(hour) === 'past') return false;
+    // Prevent scheduling in past slots or current slot
+    const timeStatus = getTimeStatus(hour);
+    if (timeStatus === 'past' || timeStatus === 'current') return false;
 
     return !getScheduledSession(machineId, hour);
   };
@@ -656,6 +703,85 @@ const TimelineGrid = ({ selectedDate }) => {
                 })}
               </TableRow>
             ))}
+
+            {/* Orphaned sessions row - sessions with unknown machine IDs */}
+            {(() => {
+              const hasOrphanedSessions = safeSchedule.some(session => !safeMachines.find(m => m.id === session.machineId));
+              console.log('🚨 ORPHANED SESSIONS CHECK:', hasOrphanedSessions, 'Total sessions:', safeSchedule.length, 'Total machines:', safeMachines.length);
+              if (hasOrphanedSessions) {
+                console.log('Orphaned sessions will render in warning row');
+              }
+              return hasOrphanedSessions;
+            })() && (
+              <TableRow sx={{ backgroundColor: 'warning.light' }}>
+                <TableCell
+                  sx={{
+                    minWidth: 200,
+                    maxWidth: 200,
+                    backgroundColor: 'warning.light',
+                    borderRight: 1,
+                    borderColor: 'divider',
+                    position: 'sticky',
+                    left: 0,
+                    zIndex: 2,
+                  }}
+                >
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 500, color: 'warning.dark' }}>
+                      ⚠️ Unassigned Sessions
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Machine references may have changed
+                    </Typography>
+                  </Box>
+                </TableCell>
+
+                {/* Time slot cells */}
+                {timeSlots.map((slot) => {
+                  const orphanedSessions = getOrphanedSessions(slot.hour);
+
+                  return (
+                    <TableCell
+                      key={`orphaned-${slot.hour}`}
+                      sx={{
+                        minWidth: 120,
+                        height: 80,
+                        borderRight: 1,
+                        borderColor: 'divider',
+                        p: 0,
+                        position: 'relative',
+                        backgroundColor: 'warning.light',
+                      }}
+                    >
+                      {orphanedSessions.map((session, index) => (
+                        <Box
+                          key={`${session.sessionId}-${slot.hour}`}
+                          sx={{
+                            position: 'absolute',
+                            top: 2 + (index * 20),
+                            left: 2,
+                            right: 2,
+                            height: 18,
+                            backgroundColor: 'warning.main',
+                            border: 1,
+                            borderColor: 'warning.dark',
+                            borderRadius: 1,
+                            p: 0.25,
+                            fontSize: '0.6rem',
+                            color: 'white',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {session.sessionName}
+                        </Box>
+                      ))}
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>

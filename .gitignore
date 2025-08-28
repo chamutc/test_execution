@@ -39,10 +39,13 @@ temp/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS files
 .DS_Store
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # Optional npm cache directory
 .npm
@@ -51,4 +54,73 @@ Thumbs.db
 # Testing
 jest-cache/
 jest-coverage/
+
+# Project-specific files
+# Data files (can contain sensitive information)
+data/*.json
+!data/*.json.example
+!data/hardware.json.example
+!data/machines.json.example
+!data/sessions.json.example
+
+# Upload directory
+uploads/
+!uploads/.gitkeep
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Session files
+*.session
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python (if using simple_server.py)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Shell scripts
+*.sh~
+
+# Backup files
+*.backup
+*.bak
+*.old
+
+# Local configuration
+config.local.js
+settings.local.json
+
+# Socket files
+*.sock
+
+# Process files
+*.pid
+
+# Cache directories
+.cache/
+.parcel-cache/
 

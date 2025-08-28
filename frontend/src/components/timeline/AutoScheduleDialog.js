@@ -38,7 +38,7 @@ import { schedulingAPI, sessionsAPI } from '../../services/api';
 import { useNotification } from '../../contexts/NotificationContext';
 import { useQueryClient } from '@tanstack/react-query';
 
-const AutoScheduleDialog = ({ open, onClose, selectedDate }) => {
+const AutoScheduleDialog = ({ open, onClose, onScheduleComplete, selectedDate }) => {
   const [scheduleType, setScheduleType] = useState('full');
   const [optimizationMode, setOptimizationMode] = useState('priority');
   const [timeRange, setTimeRange] = useState([8, 18]); // 8 AM to 6 PM
@@ -109,10 +109,17 @@ const AutoScheduleDialog = ({ open, onClose, selectedDate }) => {
       queryClient.invalidateQueries({ queryKey: ['schedule'] });
 
       if (scheduleResults.success) {
-        showSuccess(`Successfully scheduled ${scheduleResults.scheduled} sessions`);
+        showSuccess(`Successfully scheduled ${scheduleResults.result?.scheduled?.length || 0} sessions`);
       } else {
-        showWarning(`Scheduled ${scheduleResults.scheduled} sessions with ${scheduleResults.conflicts} conflicts`);
+        showWarning(`Scheduling completed with some issues`);
       }
+
+      // Trigger timeline refresh after a short delay
+      setTimeout(() => {
+        if (onScheduleComplete) {
+          onScheduleComplete();
+        }
+      }, 1000);
 
     } catch (error) {
       showError(`Auto-scheduling failed: ${error.message}`);

@@ -125,6 +125,15 @@ export const machinesAPI = {
   getAvailable: () => api.get('/machines/available'),
 };
 
+// Timeline API (New Clean API)
+export const timelineAPI = {
+  // Get timeline data for a specific date
+  getTimelineByDate: (date) => api.get(`/timeline/date/${date}`),
+  
+  // Get available dates with scheduled sessions
+  getAvailableDates: () => api.get('/timeline/available-dates'),
+};
+
 // Scheduling API
 export const schedulingAPI = {
   // Auto scheduling

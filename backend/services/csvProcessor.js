@@ -575,26 +575,34 @@ class CsvProcessor {
   }
 
   mergeHardware(existingHardware, newHardware) {
+    // Handle case where existingHardware is empty array or null/undefined
+    const existingDebuggers = Array.isArray(existingHardware?.debuggers) ? existingHardware.debuggers : [];
+    const existingPlatforms = Array.isArray(existingHardware?.platforms) ? existingHardware.platforms : [];
+    
     const merged = {
-      debuggers: [...existingHardware.debuggers],
-      platforms: [...existingHardware.platforms]
+      debuggers: [...existingDebuggers],
+      platforms: [...existingPlatforms]
     };
 
-    // Merge debuggers
-    newHardware.debuggers.forEach(newItem => {
-      const existingItem = merged.debuggers.find(item => item.name === newItem.name);
-      if (!existingItem) {
-        merged.debuggers.push(newItem);
-      }
-    });
+    // Merge debuggers (only if newHardware.debuggers exists and is array)
+    if (Array.isArray(newHardware?.debuggers)) {
+      newHardware.debuggers.forEach(newItem => {
+        const existingItem = merged.debuggers.find(item => item.name === newItem.name);
+        if (!existingItem) {
+          merged.debuggers.push(newItem);
+        }
+      });
+    }
 
-    // Merge platforms
-    newHardware.platforms.forEach(newItem => {
-      const existingItem = merged.platforms.find(item => item.name === newItem.name);
-      if (!existingItem) {
-        merged.platforms.push(newItem);
-      }
-    });
+    // Merge platforms (only if newHardware.platforms exists and is array)
+    if (Array.isArray(newHardware?.platforms)) {
+      newHardware.platforms.forEach(newItem => {
+        const existingItem = merged.platforms.find(item => item.name === newItem.name);
+        if (!existingItem) {
+          merged.platforms.push(newItem);
+        }
+      });
+    }
 
     return merged;
   }
@@ -604,8 +612,8 @@ class CsvProcessor {
       totalSessions: sessions.length,
       pendingSessions: sessions.filter(s => s.status === 'pending').length,
       hardwareRequiredSessions: sessions.filter(s => s.requiresHardware).length,
-      uniqueDebuggers: hardware.debuggers.length,
-      uniquePlatforms: hardware.platforms.length,
+      uniqueDebuggers: Array.isArray(hardware?.debuggers) ? hardware.debuggers.length : 0,
+      uniquePlatforms: Array.isArray(hardware?.platforms) ? hardware.platforms.length : 0,
       priorityBreakdown: {
         urgent: sessions.filter(s => s.priority === 'urgent').length,
         high: sessions.filter(s => s.priority === 'high').length,

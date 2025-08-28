@@ -12,6 +12,7 @@ const machineRoutes = require('./backend/routes/machineRoutes');
 const sessionsRoutes = require('./backend/routes/sessionsRoutes');
 const scheduleRoutes = require('./backend/routes/scheduleRoutes');
 const schedulingRoutes = require('./backend/routes/schedulingRoutes');
+const timelineRoutes = require('./backend/routes/timelineRoutes');
 
 // Import services
 const SocketService = require('./backend/services/socketService');
@@ -73,6 +74,7 @@ app.use('/api/machines', machineRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/scheduling', schedulingRoutes);
 app.use('/api/sessions', sessionsRoutes);
+app.use('/api/timeline', timelineRoutes);
 
 // Serve main application
 app.get('/', (req, res) => {

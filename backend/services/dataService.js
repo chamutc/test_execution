@@ -7,12 +7,14 @@ class DataService {
     this.dataDir = path.join(__dirname, '../../data');
     this.ensureDataDirectory();
 
-    // Initialize new database schema
+    // Initialize new database schema (but don't auto-migrate)
     this.db = new DatabaseSchema();
 
-    // Load existing data and migrate if needed
+    // Load existing data ONLY - NO automatic migration
     this.loadExistingData();
-    this.migrateExistingData();
+    // Load saved database data if it exists
+    this.loadSavedDatabaseData();
+    // REMOVED: this.migrateExistingData(); // This was causing machine ID regeneration!
   }
 
   ensureDataDirectory() {
@@ -123,11 +125,37 @@ class DataService {
 
   // Machine data management
   getMachines() {
-    return this.readData('machines.json') || [];
+    console.log('🔍 getMachines() called - checking file reading...');
+    const filePath = path.join(this.dataDir, 'machines.json');
+    console.log('File path:', filePath);
+    console.log('File exists:', fs.existsSync(filePath));
+    
+    const result = this.readData('machines.json') || [];
+    console.log('Read result:', result);
+    console.log('Result type:', typeof result);
+    console.log('Result length:', Array.isArray(result) ? result.length : 'not array');
+    
+    return result;
   }
 
   getAllMachines() {
-    return this.getMachines();
+    console.log('🔥 getAllMachines() called! 🔥');
+    
+    // ALWAYS use JSON file for machine persistence 
+    // This ensures machine IDs are stable across server restarts
+    const machinesFromFile = this.getMachines();
+    console.log('Machines from JSON file:', machinesFromFile.length);
+    console.log('Machine IDs from file:', machinesFromFile.slice(0, 3).map(m => m.id));
+    
+    // Also sync with database if available
+    if (this.db && this.db.machines) {
+      console.log('Syncing with database...');
+      machinesFromFile.forEach(machine => {
+        this.db.machines.set(machine.id, machine);
+      });
+    }
+    
+    return machinesFromFile;
   }
 
   saveMachines(machines) {
@@ -364,15 +392,45 @@ class DataService {
   deleteMachine(id) { return this.db.deleteMachine(id); }
 
   // Platform methods
-  getPlatforms() { return this.db.getAllPlatforms(); }
-  getPlatform(id) { return this.db.findPlatform(id); }
+  getPlatforms() { 
+    // Bridge old and new data structures
+    const dbPlatforms = this.db.getAllPlatforms();
+    if (dbPlatforms.length > 0) {
+      return dbPlatforms;
+    }
+    // Fall back to legacy data
+    const hardware = this.getHardware();
+    return hardware.platforms || [];
+  }
+  getPlatform(id) { 
+    const platform = this.db.findPlatform(id);
+    if (platform) return platform;
+    // Fall back to legacy data
+    const hardware = this.getHardware();
+    return hardware.platforms?.find(p => p.id === id);
+  }
   createPlatform(data) { return this.db.createPlatform(data); }
   updatePlatform(id, updates) { return this.db.updatePlatform(id, updates); }
   deletePlatform(id) { return this.db.deletePlatform(id); }
 
   // Debugger methods
-  getDebuggers() { return this.db.getAllDebuggers(); }
-  getDebugger(id) { return this.db.findDebugger(id); }
+  getDebuggers() { 
+    // Bridge old and new data structures
+    const dbDebuggers = this.db.getAllDebuggers();
+    if (dbDebuggers.length > 0) {
+      return dbDebuggers;
+    }
+    // Fall back to legacy data
+    const hardware = this.getHardware();
+    return hardware.debuggers || [];
+  }
+  getDebugger(id) { 
+    const debuggerItem = this.db.findDebugger(id);
+    if (debuggerItem) return debuggerItem;
+    // Fall back to legacy data
+    const hardware = this.getHardware();
+    return hardware.debuggers?.find(d => d.id === id);
+  }
   createDebugger(data) { return this.db.createDebugger(data); }
   updateDebugger(id, updates) { return this.db.updateDebugger(id, updates); }
   deleteDebugger(id) { return this.db.deleteDebugger(id); }
@@ -394,9 +452,21 @@ class DataService {
   // Hardware combination methods
   getHardwareCombinations() { return this.db.getAllHardwareCombinations(); }
   getHardwareCombination(id) { return this.db.findHardwareCombination(id); }
-  createHardwareCombination(data) { return this.db.createHardwareCombination(data); }
-  updateHardwareCombination(id, updates) { return this.db.updateHardwareCombination(id, updates); }
-  deleteHardwareCombination(id) { return this.db.deleteHardwareCombination(id); }
+  createHardwareCombination(data) { 
+    const result = this.db.createHardwareCombination(data);
+    this.saveNewDatabaseData();
+    return result;
+  }
+  updateHardwareCombination(id, updates) { 
+    const result = this.db.updateHardwareCombination(id, updates);
+    this.saveNewDatabaseData();
+    return result;
+  }
+  deleteHardwareCombination(id) { 
+    const result = this.db.deleteHardwareCombination(id);
+    this.saveNewDatabaseData();
+    return result;
+  }
 
   // Hardware inventory methods
   getHardwareInventory() { return this.db.getAllHardwareInventory(); }
@@ -492,6 +562,41 @@ class DataService {
       }
     } catch (error) {
       console.error('Error loading existing data:', error);
+    }
+  }
+
+  // Load saved database data
+  loadSavedDatabaseData() {
+    try {
+      const combinationsFile = path.join(this.dataDir, 'hardwareCombinations.json');
+      const platformsFile = path.join(this.dataDir, 'platforms.json');
+      const debuggersFile = path.join(this.dataDir, 'debuggers.json');
+
+      if (fs.existsSync(combinationsFile)) {
+        const combinations = JSON.parse(fs.readFileSync(combinationsFile, 'utf8'));
+        combinations.forEach(combo => {
+          this.db.hardwareCombinations.set(combo.id, combo);
+        });
+        console.log(`Loaded ${combinations.length} hardware combinations from file`);
+      }
+
+      if (fs.existsSync(platformsFile)) {
+        const platforms = JSON.parse(fs.readFileSync(platformsFile, 'utf8'));
+        platforms.forEach(platform => {
+          this.db.platforms.set(platform.id, platform);
+        });
+        console.log(`Loaded ${platforms.length} platforms from file`);
+      }
+
+      if (fs.existsSync(debuggersFile)) {
+        const debuggers = JSON.parse(fs.readFileSync(debuggersFile, 'utf8'));
+        debuggers.forEach(debuggerItem => {
+          this.db.debuggers.set(debuggerItem.id, debuggerItem);
+        });
+        console.log(`Loaded ${debuggers.length} debuggers from file`);
+      }
+    } catch (error) {
+      console.error('Error loading saved database data:', error);
     }
   }
 

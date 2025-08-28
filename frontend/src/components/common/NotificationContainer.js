@@ -54,10 +54,15 @@ const NotificationItem = ({ notification, onClose }) => {
         onClose={handleClose}
         variant="filled"
         sx={{
-          minWidth: 300,
-          maxWidth: 500,
+          minWidth: 320,
+          maxWidth: 560,
+          alignItems: 'flex-start',
           '& .MuiAlert-message': {
+            width: '100%',
+            whiteSpace: 'normal',
+            overflowWrap: 'anywhere',
             wordBreak: 'break-word',
+            display: 'block',
           },
         }}
         action={

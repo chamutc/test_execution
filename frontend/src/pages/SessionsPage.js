@@ -7,9 +7,12 @@ import {
   Box,
   Button,
   Divider,
+  CircularProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
+  Edit as EditIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 
 // Components
@@ -21,11 +24,21 @@ import AddSessionDialog from '../components/sessions/AddSessionDialog';
 // Hooks
 import { useSessionsQuery } from '../hooks/useSessionsQuery';
 
+// API Services
+import { sessionsAPI } from '../services/api';
+
+// Contexts
+import { useNotification } from '../contexts/NotificationContext';
+
 const SessionsPage = () => {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editSession, setEditSession] = useState(null);
   const [viewSession, setViewSession] = useState(null);
+  const [cleaningSessions, setCleaningSessions] = useState(false);
+  const [editingSessions, setEditingSessions] = useState(false);
   const { data: sessionsData, isLoading, error } = useSessionsQuery();
+  
+  const { showSuccess, showError, showWarning } = useNotification();
 
   const sessions = sessionsData || [];
 
@@ -42,6 +55,52 @@ const SessionsPage = () => {
   const handleCloseDialog = () => {
     setAddDialogOpen(false);
     setEditSession(null);
+  };
+
+  const handleCleanAllSessions = async () => {
+    if (window.confirm('Are you sure you want to delete ALL sessions? This action cannot be undone.')) {
+      try {
+        setCleaningSessions(true);
+        
+        // Delete all sessions one by one
+        const deletePromises = sessions.map(session => 
+          sessionsAPI.delete(session.id)
+        );
+        
+        await Promise.all(deletePromises);
+        
+        showSuccess(`Successfully deleted ${sessions.length} sessions`);
+        
+        // Refresh sessions data
+        window.location.reload();
+      } catch (error) {
+        console.error('Failed to clean sessions:', error);
+        showError('Failed to clean sessions. Please try again.');
+      } finally {
+        setCleaningSessions(false);
+      }
+    }
+  };
+
+  const handleEditAllSessions = async () => {
+    if (window.confirm('Are you sure you want to edit ALL sessions? This will open multiple edit dialogs.')) {
+      try {
+        setEditingSessions(true);
+        
+        // Open edit dialog for first session as example
+        if (sessions.length > 0) {
+          setEditSession(sessions[0]);
+          setAddDialogOpen(true);
+        }
+        
+        showWarning('Edit dialog opened for first session. Edit other sessions individually.');
+      } catch (error) {
+        console.error('Failed to open edit dialogs:', error);
+        showError('Failed to open edit dialogs.');
+      } finally {
+        setEditingSessions(false);
+      }
+    }
   };
 
   return (
@@ -66,6 +125,32 @@ const SessionsPage = () => {
               size="large"
             >
               Add Session
+            </Button>
+          </Grid>
+          
+          <Grid item>
+            <Button
+              variant="outlined"
+              startIcon={editingSessions ? <CircularProgress size={16} /> : <EditIcon />}
+              onClick={handleEditAllSessions}
+              size="large"
+              disabled={editingSessions || sessions.length === 0}
+              color="primary"
+            >
+              {editingSessions ? 'Opening...' : 'Edit Sessions'}
+            </Button>
+          </Grid>
+          
+          <Grid item>
+            <Button
+              variant="outlined"
+              startIcon={cleaningSessions ? <CircularProgress size={16} /> : <ClearIcon />}
+              onClick={handleCleanAllSessions}
+              size="large"
+              disabled={cleaningSessions || sessions.length === 0}
+              color="error"
+            >
+              {cleaningSessions ? 'Cleaning...' : 'Clean All Sessions'}
             </Button>
           </Grid>
 

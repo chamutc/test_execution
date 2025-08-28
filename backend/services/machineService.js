@@ -7,23 +7,48 @@ class MachineService {
 
   /**
    * Generate machines based on machine types configuration
+   * PRESERVES existing machine IDs to maintain session assignments
    * @param {Array} machineTypes - Array of machine type configurations
+   * @param {Array} existingMachines - Optional existing machines to preserve IDs
    * @returns {Array} Generated machines
    */
-  generateMachines(machineTypes) {
+  _generateMachinesInternal(machineTypes, existingMachines = []) {
     try {
       const machines = [];
+      
+      // Create lookup maps for existing machines
+      const existingByName = new Map();
+      const existingByOsAndIndex = new Map();
+      
+      existingMachines.forEach(machine => {
+        existingByName.set(machine.name, machine);
+        
+        // Extract OS type and index from name (e.g., "Ubuntu 24.04-01" -> "Ubuntu 24.04", 1)
+        const nameMatch = machine.name.match(/^(.+)-(\d+)$/);
+        if (nameMatch) {
+          const osType = nameMatch[1];
+          const index = parseInt(nameMatch[2]);
+          const key = `${osType}-${index}`;
+          existingByOsAndIndex.set(key, machine);
+        }
+      });
 
       machineTypes.forEach(machineType => {
         for (let i = 1; i <= machineType.quantity; i++) {
+          const machineName = `${machineType.osType}-${i.toString().padStart(2, '0')}`;
+          const osIndexKey = `${machineType.osType}-${i}`;
+          
+          // Check if machine already exists (preserve ID)
+          let existingMachine = existingByName.get(machineName) || existingByOsAndIndex.get(osIndexKey);
+          
           const machine = {
-            id: uuidv4(),
-            name: `${machineType.osType}-${i.toString().padStart(2, '0')}`,
+            id: existingMachine ? existingMachine.id : this.generateStableMachineId(machineType.osType, i),
+            name: machineName,
             osType: machineType.osType,
-            status: 'available', // available, busy, maintenance
-            currentSession: null,
+            status: existingMachine ? existingMachine.status || 'available' : 'available',
+            currentSession: existingMachine ? existingMachine.currentSession : null,
             capabilities: this.getMachineCapabilities(machineType.osType),
-            createdAt: new Date().toISOString(),
+            createdAt: existingMachine ? existingMachine.createdAt : new Date().toISOString(),
             lastUpdated: new Date().toISOString()
           };
 
@@ -31,6 +56,7 @@ class MachineService {
         }
       });
 
+      console.log(`Generated ${machines.length} machines, preserved ${existingMachines.length} existing IDs`);
       return machines;
 
     } catch (error) {
@@ -38,6 +64,40 @@ class MachineService {
       return [];
     }
   }
+
+  /**
+   * Generate stable machine ID based on OS type and index
+   * This ensures consistent IDs across server restarts
+   * @param {string} osType - Operating system type  
+   * @param {number} index - Machine index
+   * @returns {string} Stable machine ID
+   */
+  generateStableMachineId(osType, index) {
+    // Create predictable but unique ID based on OS type and index
+    const normalizedOs = osType.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const paddedIndex = index.toString().padStart(2, '0');
+    return `${normalizedOs}-${paddedIndex}`;
+  }
+
+  /**
+   * IMPORTANT: This method should ONLY be called manually by user
+   * NOT automatically on startup to prevent machine ID changes
+   */
+  generateMachines(machineTypes, existingMachines = []) {
+    console.log('⚠️ WARNING: Machine generation called! This should be manual only.');
+    console.log('Machine types:', machineTypes.map(t => `${t.osType}: ${t.quantity}`));
+    console.log('Existing machines:', existingMachines.length);
+    
+    // Only allow generation if explicitly requested
+    if (!machineTypes || machineTypes.length === 0) {
+      console.log('❌ No machine types provided - refusing to generate');
+      return existingMachines;
+    }
+    
+    return this._generateMachinesInternal(machineTypes, existingMachines);
+  }
+
+
 
   /**
    * Get machine capabilities based on OS type

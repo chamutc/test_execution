@@ -34,6 +34,7 @@ const MachinesPageFixed = () => {
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [editLoading, setEditLoading] = useState(false);
 
   // Mock data for demonstration
   const mockMachines = [
@@ -126,10 +127,11 @@ const MachinesPageFixed = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'running': return 'success';
-      case 'stopped': return 'default';
+      case 'available': return 'success';
+      case 'busy': return 'warning';
       case 'error': return 'error';
-      case 'starting': return 'warning';
+      case 'maintenance': return 'info';
+      case 'offline': return 'default';
       default: return 'default';
     }
   };
@@ -198,10 +200,10 @@ const MachinesPageFixed = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Running
+                Available
               </Typography>
               <Typography variant="h4" color="success.main">
-                {machines.filter(m => m.status === 'running').length}
+                {machines.filter(m => m.status === 'available').length}
               </Typography>
             </CardContent>
           </Card>
@@ -210,10 +212,10 @@ const MachinesPageFixed = () => {
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
-                Stopped
+                Busy
               </Typography>
-              <Typography variant="h4" color="text.secondary">
-                {machines.filter(m => m.status === 'stopped').length}
+              <Typography variant="h4" color="warning.main">
+                {machines.filter(m => m.status === 'busy').length}
               </Typography>
             </CardContent>
           </Card>
@@ -318,8 +320,22 @@ const MachinesPageFixed = () => {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Button size="small" onClick={() => { setEditing(machine); setDialogOpen(true); }}>
-                    Edit
+                  <Button 
+                    size="small" 
+                    disabled={editLoading}
+                    onClick={() => { 
+                      // Transform machine data for edit mode
+                      const editData = {
+                        id: machine.id,
+                        name: machine.name,
+                        osType: machine.os || machine.osType,
+                        status: machine.status // Use actual status, no transformation
+                      };
+                      setEditing(editData); 
+                      setDialogOpen(true); 
+                    }}
+                  >
+                    {editLoading ? 'Loading...' : 'Edit'}
                   </Button>
                   <Button size="small" color="error" onClick={async () => {
                     await machinesAPI.delete(machine.id);
@@ -330,7 +346,7 @@ const MachinesPageFixed = () => {
                       name: m.name,
                       type: 'vm',
                       os: m.osType || m.os,
-                      status: m.status === 'available' ? 'running' : (m.status || 'stopped'),
+                      status: m.status || 'unknown', // Use actual status, no transformation
                       ipAddress: '192.168.1.100',
                       cpuUsage: Math.floor(Math.random() * 100),
                       memoryUsage: Math.floor(Math.random() * 100),
@@ -351,26 +367,37 @@ const MachinesPageFixed = () => {
         initialData={editing}
         onClose={() => setDialogOpen(false)}
         onSubmit={async (data) => {
-          if (editing) {
-            await machinesAPI.update(editing.id, data);
-          } else {
-            await machinesAPI.create(data);
+          try {
+            setEditLoading(true);
+            
+            if (editing) {
+              await machinesAPI.update(editing.id, data);
+            } else {
+              await machinesAPI.create(data);
+            }
+            setDialogOpen(false);
+            setEditing(null);
+            
+            // Refresh machines list
+            const res = await machinesAPI.getAll();
+            const machinesData = res.data?.machines || res.machines || [];
+            const transformed = machinesData.map(m => ({
+              id: m.id,
+              name: m.name,
+              type: 'vm',
+              os: m.osType || m.os,
+              status: m.status || 'unknown', // Use actual status, no transformation
+              ipAddress: '192.168.1.100',
+              cpuUsage: Math.floor(Math.random() * 100),
+              memoryUsage: Math.floor(Math.random() * 100),
+            }));
+            setMachines(transformed);
+          } catch (error) {
+            console.error('Error saving machine:', error);
+            alert('Failed to save machine. Please try again.');
+          } finally {
+            setEditLoading(false);
           }
-          setDialogOpen(false);
-          setEditing(null);
-          const res = await machinesAPI.getAll();
-          const machinesData = res.data?.machines || [];
-          const transformed = machinesData.map(m => ({
-            id: m.id,
-            name: m.name,
-            type: 'vm',
-            os: m.osType || m.os,
-            status: m.status === 'available' ? 'running' : (m.status || 'stopped'),
-            ipAddress: '192.168.1.100',
-            cpuUsage: Math.floor(Math.random() * 100),
-            memoryUsage: Math.floor(Math.random() * 100),
-          }));
-          setMachines(transformed);
         }}
       />
     </Container>
